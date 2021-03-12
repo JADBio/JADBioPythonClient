@@ -268,7 +268,7 @@ class JadHttpClient(object):
         :param str project_id: Id of the project to which the dataset will be created.
         :param int file_id: Id provided by the client when the file was uploaded.
         :param int file_size_in_bytes: must match the actual size of the uploaded file.
-            (e.g. os.path.getsize(pth_to_file))
+            (e.g. len(open("pth/to/file.csv",'r').read()))
         :param str separator: specifies the characters used to separate values in the file.
         :param bool has_samples_in_rows: must be true iff rows of the uploaded file correspond to samples.
         :param bool has_feature_headers_name: True if dataset contains feature names.
@@ -285,7 +285,7 @@ class JadHttpClient(object):
         >>> pid = client.create_project("this_is_a_project_name")
         >>> fid = client.upload_file(1234, "pth/to/file.csv")
         >>> client.create_dataset('file', pid, fid,
-        ...    getsize("pth/to/file.csv"), has_sample_headers=False)
+        ...    len(open("pth/to/file.csv",'r').read()), has_sample_headers=False)
         '689'
         """
 
