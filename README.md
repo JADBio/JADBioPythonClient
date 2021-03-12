@@ -25,6 +25,7 @@ $ pip install -r requirements.txt
 
 ```bash
 $ pip install sphinx
+$ mkdir build
 $ sphinx-apidoc -f -o source/ build
 $ make html
 ```
