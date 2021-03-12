@@ -1,0 +1,2 @@
+requests>=2.25.0
+sphinx>3.5.0
