@@ -1,10 +1,8 @@
 from requests import Session
 
-HOST = 'https://jadapi.jadbio.com'
-
 API_VERSION = 'v1'
 
-PUBLIC_API_BASE = "{}/api/public/{}/".format(HOST, API_VERSION)
+PUBLIC_API_BASE = "/api/public/{}/".format(API_VERSION)
 GET_VERSION_PATH = PUBLIC_API_BASE + 'version'
 LOGIN_API_PATH = PUBLIC_API_BASE + 'login'
 NEW_PROJECT_PATH = PUBLIC_API_BASE + 'createProject'
@@ -51,6 +49,8 @@ class JadRequestResponseError(Exception):
         super().__init__(message)
 
 class JadHttpClient(object):
+    HOST = 'https://jadapi.jadbio.com'
+
     """
     This class provides major JADBio functionality to python users using API calls.
     Requests are HTTP GET and POST only.
@@ -61,19 +61,21 @@ class JadHttpClient(object):
     session = None
     token = None
 
-    def __init__(self, username: str, passwrd: str):
+    def __init__(self, username: str, passwrd: str, host: str = None):
         """
         Handles communication with the backend.
 
         :param str username: Jad account username or email.
         :param str passwrd: Jad account password.
+        :param str host: Host endpoint (no need to be set).
         :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
 
         :Example:
 
         >>> client = JadHttpClient('juser@gmail.com', 'a password')
         """
-
+        if host is not None:
+            self.HOST = host
         self.session = None
         self.login(username, passwrd)
 
@@ -100,7 +102,7 @@ class JadHttpClient(object):
         1.0-beta
         """
 
-        ret = self.session.get(GET_VERSION_PATH, headers=self.token)
+        ret = self.session.get(self.HOST + GET_VERSION_PATH, headers=self.token)
         return JadHttpClient.__parse_response__(ret, 'Get Version')['version']
 
     def login(self, username: str, passwrd: str):
@@ -121,7 +123,7 @@ class JadHttpClient(object):
         self.session = Session()
 
         loginRequest = {'usernameOrEmail': username, 'password': passwrd}
-        res = self.session.post(LOGIN_API_PATH, json=loginRequest)
+        res = self.session.post(self.HOST + LOGIN_API_PATH, json=loginRequest)
 
         login = JadHttpClient.__parse_response__(res, 'Login')
 
@@ -159,7 +161,7 @@ class JadHttpClient(object):
         """
 
         projectRequest = {'name': name, 'description': descr}
-        res = self.session.post(NEW_PROJECT_PATH, json=projectRequest,
+        res = self.session.post(self.HOST + NEW_PROJECT_PATH, json=projectRequest,
                                 headers=self.token)
         return str(JadHttpClient.__parse_response__(res, 'Create project')['projectId'])
 
@@ -179,7 +181,7 @@ class JadHttpClient(object):
         { projectId: '314', name: 'this_is_a_project_name' }
         """
 
-        ret = self.session.get(GET_PROJECT_PATH.format(project_id), headers=self.token)
+        ret = self.session.get(self.HOST + GET_PROJECT_PATH.format(project_id), headers=self.token)
         return JadHttpClient.__parse_response__(ret, 'Get project')
 
     def delete_project(self, project_id: str):
@@ -199,7 +201,7 @@ class JadHttpClient(object):
         {'projectId': '463', 'name': 'this_is_a_project_name'}
         """
 
-        ret = self.session.post(DELETE_PATH.format('project', project_id), headers=self.token)
+        ret = self.session.post(self.HOST + DELETE_PATH.format('project', project_id), headers=self.token)
         return JadHttpClient.__parse_response__(ret, 'Delete project')
 
     def get_projects(self, offset: int = 0, count: int = 10):
@@ -224,7 +226,7 @@ class JadHttpClient(object):
             'data': [{'projectId': '462', 'name': 'test'}]}
         """
 
-        ret = self.session.get(GET_PROJECTS_PATH.format(offset, count), headers=self.token)
+        ret = self.session.get(self.HOST + GET_PROJECTS_PATH.format(offset, count), headers=self.token)
         return JadHttpClient.__parse_response__(ret, 'Get projects')
 
     def upload_file(self, file_id: int, pth_to_file: str):
@@ -249,7 +251,7 @@ class JadHttpClient(object):
         1234
         """
         with open(pth_to_file, 'r') as f:
-            ret = self.session.post(FILE_UPLOAD_PATH.format(file_id), data=f.read(),
+            ret = self.session.post(self.HOST + FILE_UPLOAD_PATH.format(file_id), data=f.read(),
                                     headers=self.token)
 
             if ret.status_code != 200:
@@ -299,7 +301,7 @@ class JadHttpClient(object):
             'description': description,
             'projectId': str(project_id)
         }
-        ret = self.session.post(DATASET_CREATE_PATH.format(file_id),
+        ret = self.session.post(self.HOST + DATASET_CREATE_PATH.format(file_id),
                                 json=create_dataset_request, headers=self.token)
         return str(JadHttpClient.__parse_response__(ret, 'Create dataset')['taskId'])
 
@@ -358,7 +360,7 @@ class JadHttpClient(object):
             'newName': new_name,
             'changes': changes
         }
-        ret = self.session.post(CHANGE_FEATURE_TYPES_PATH.format(dataset_id),
+        ret = self.session.post(self.HOST + CHANGE_FEATURE_TYPES_PATH.format(dataset_id),
                                 json=change_feature_types_request, headers=self.token)
         return str(JadHttpClient.__parse_response__(ret, 'Change feature types')['taskId'])
 
@@ -379,7 +381,7 @@ class JadHttpClient(object):
                                                         'datasetId': '6065'}
         """
 
-        ret = self.session.get(GET_TASK_STATUS_PATH.format('task', task_id), headers=self.token)
+        ret = self.session.get(self.HOST + GET_TASK_STATUS_PATH.format('task', task_id), headers=self.token)
         return JadHttpClient.__parse_response__(ret, 'Get task')
 
     def get_dataset(self, dataset_id: str):
@@ -401,7 +403,7 @@ class JadHttpClient(object):
                                                         'datasetId': '6065'}
         """
 
-        ret = self.session.get(GET_DATASET_PATH.format(dataset_id), headers=self.token)
+        ret = self.session.get(self.HOST + GET_DATASET_PATH.format(dataset_id), headers=self.token)
         return JadHttpClient.__parse_response__(ret, 'Get dataset')
 
     def get_datasets(self, project_id: str, offset: int = 0, count: int = 10):
@@ -438,7 +440,7 @@ class JadHttpClient(object):
             ]}
         """
 
-        ret = self.session.get(GET_DATASETS_PATH.format(project_id, offset, count), headers=self.token)
+        ret = self.session.get(self.HOST + GET_DATASETS_PATH.format(project_id, offset, count), headers=self.token)
         return JadHttpClient.__parse_response__(ret, 'Get datasets')
 
     def delete_dataset(self, dataset_id: str):
@@ -461,7 +463,7 @@ class JadHttpClient(object):
             'featureCount': 6, 'sizeInBytes': 4507}
         """
 
-        ret = self.session.post(DELETE_PATH.format('dataset', dataset_id), headers=self.token)
+        ret = self.session.post(self.HOST + DELETE_PATH.format('dataset', dataset_id), headers=self.token)
         return JadHttpClient.__parse_response__(ret, 'Delete dataset')
 
     def analyze_dataset(self, dataset_id: str, name: str, outcome: dict, thoroughness: str = 'preliminary',
@@ -529,7 +531,7 @@ class JadHttpClient(object):
             analyze_dataset_request['maxSignatureSize'] = max_signature_size
         if grouping_feat is not None:
             analyze_dataset_request['groupingFeature'] = grouping_feat
-        ret = self.session.post(ANALYZE_DATASET_PATH.format(dataset_id),
+        ret = self.session.post(self.HOST + ANALYZE_DATASET_PATH.format(dataset_id),
                                 json=analyze_dataset_request, headers=self.token)
         return str(JadHttpClient.__parse_response__(ret, 'Analyze dataset')['analysisId'])
 
@@ -563,7 +565,7 @@ class JadHttpClient(object):
         }
         """
 
-        ret = self.session.get(GET_ANALYSIS_PATH.format(analysis_id), headers=self.token)
+        ret = self.session.get(self.HOST + GET_ANALYSIS_PATH.format(analysis_id), headers=self.token)
         return JadHttpClient.__parse_response__(ret, 'Get analysis')
 
     def get_analyses(self, project_id: str, offset: int = 0, count: int = 10):
@@ -603,7 +605,7 @@ class JadHttpClient(object):
                 'state': 'finished'}]}
         """
 
-        ret = self.session.get(GET_ANALYSES_PATH.format(project_id, offset, count), headers=self.token)
+        ret = self.session.get(self.HOST + GET_ANALYSES_PATH.format(project_id, offset, count), headers=self.token)
         return JadHttpClient.__parse_response__(ret, 'Get analyses')
 
     def get_analysis_status(self, analysis_id: str):
@@ -642,7 +644,7 @@ class JadHttpClient(object):
             'executionTimeInSeconds': 10}
         """
 
-        ret = self.session.get(GET_TASK_STATUS_PATH.format('analysis', analysis_id), headers=self.token)
+        ret = self.session.get(self.HOST + GET_TASK_STATUS_PATH.format('analysis', analysis_id), headers=self.token)
         return JadHttpClient.__parse_response__(ret, 'Get analysis status')
 
     def get_analysis_result(self, analysis_id: str):
@@ -705,7 +707,7 @@ class JadHttpClient(object):
             'startTime': '2021-02-26T11:04:15Z', 'executionTimeInSeconds': 10}
         """
 
-        ret = self.session.get(GET_ANALYSIS_RESULT_PATH.format(analysis_id), headers=self.token)
+        ret = self.session.get(self.HOST + GET_ANALYSIS_RESULT_PATH.format(analysis_id), headers=self.token)
         return JadHttpClient.__parse_response__(ret, 'Get analysis result')
 
     def delete_analysis(self, analysis_id: str):
@@ -739,7 +741,7 @@ class JadHttpClient(object):
             'state': 'finished'}
         """
 
-        ret = self.session.post(DELETE_PATH.format('analysis', analysis_id), headers=self.token)
+        ret = self.session.post(self.HOST + DELETE_PATH.format('analysis', analysis_id), headers=self.token)
         return JadHttpClient.__parse_response__(ret, 'Delete analysis')
 
     def predict_outcome(self, analysis_id: str, dataset_id: str, model_key: str, signature_index: int = 0):
@@ -768,7 +770,7 @@ class JadHttpClient(object):
             'modelKey': model_key,
             'signatureIndex': signature_index
         }
-        ret = self.session.post(PREDICT_OUTCOME_PATH.format(analysis_id, dataset_id),
+        ret = self.session.post(self.HOST + PREDICT_OUTCOME_PATH.format(analysis_id, dataset_id),
                                 json=predict_outcome_request, headers=self.token)
         return str(JadHttpClient.__parse_response__(ret, 'Predict outcome')['predictionId'])
 
@@ -798,7 +800,7 @@ class JadHttpClient(object):
         }
         """
 
-        ret = self.session.get(GET_PREDICTION_PATH.format(prediction_id), headers=self.token)
+        ret = self.session.get(self.HOST + GET_PREDICTION_PATH.format(prediction_id), headers=self.token)
         return JadHttpClient.__parse_response__(ret, 'Get prediction')
 
     def get_predictions(self, analysis_id: str, offset: int = 0, count: int = 10):
@@ -838,7 +840,7 @@ class JadHttpClient(object):
         }
         """
 
-        ret = self.session.get(GET_PREDICTIONS_PATH.format(analysis_id, offset, count), headers=self.token)
+        ret = self.session.get(self.HOST + GET_PREDICTIONS_PATH.format(analysis_id, offset, count), headers=self.token)
         return JadHttpClient.__parse_response__(ret, 'Get predictions')
 
     def get_prediction_status(self, prediction_id: str):
@@ -857,7 +859,7 @@ class JadHttpClient(object):
         {'predictionId': '431', 'state': 'finished'}
         """
 
-        ret = self.session.get(GET_TASK_STATUS_PATH.format('prediction', prediction_id), headers=self.token)
+        ret = self.session.get(self.HOST + GET_TASK_STATUS_PATH.format('prediction', prediction_id), headers=self.token)
         return JadHttpClient.__parse_response__(ret, 'Get prediction status')
 
     def get_prediction_result(self, prediction_id: str):
@@ -883,7 +885,7 @@ class JadHttpClient(object):
         ..."
         """
 
-        ret = self.session.get(GET_PREDICTION_RESULT_PATH.format(prediction_id), headers=self.token)
+        ret = self.session.get(self.HOST + GET_PREDICTION_RESULT_PATH.format(prediction_id), headers=self.token)
         if ret.status_code != 200:
             JadHttpClient.__request_failed__(ret, "Get prediction result")
         return ret.content.decode("utf-8")
@@ -911,7 +913,7 @@ class JadHttpClient(object):
             'state': 'finished'
         }
         """
-        ret = self.session.post(DELETE_PATH.format('prediction', prediction_id), headers=self.token)
+        ret = self.session.post(self.HOST + DELETE_PATH.format('prediction', prediction_id), headers=self.token)
         return JadHttpClient.__parse_response__(ret, 'Delete prediction')
 
     # ---------------Private-Functions------------------------------------------#
