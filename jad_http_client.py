@@ -659,14 +659,13 @@ class JadHttpClient(object):
         including the identity of the dataset and optional values.
 
         The model datatype has the following form: {preprocessing: string, featureSelection: string, model: string,
-            signatures: string[][]}.
+            signatures: string[][], performance: {key: value,}}.
 
         :Example:
 
         >>> client = JadHttpClient('juser@gmail.com', 'a password')
         >>> client.get_analysis_result('5219')
         {'mlEngine': 'jadbio-1.1.0', 'analysisId': '5219',
-            'projectId': '462',
             'parameters': {
                 'coreCount': 1
                 'datasetId': '6067',
@@ -686,7 +685,10 @@ class JadHttpClient(object):
                     'model': 'Support Vector Machines (SVM) of type C-SVC with
                         Polynomial Kernel and hyper-parameters:  cost = 1.0,
                         gamma = 1.0, degree = 3',
-                    'signatures': [["variable5", "variable4"]]},
+                    'signatures': [["variable5", "variable4"]],
+                    "performance": {
+                          "Area Under the ROC Curve": 0.9979193891504624,
+                      }},
                 'interpretable': {
                     'preprocessing': 'Constant Removal, Standardization',
                     'featureSelection': 'Test-Budgeted Statistically Equivalent
@@ -695,7 +697,10 @@ class JadHttpClient(object):
                     'model': 'Classification Decision Tree with Deviance
                         splitting criterion and hyper-parameters: minimum
                         leaf size = 3, and pruning parameter alpha = 0.05',
-                    'signatures': [["variable5", "variable4"]]},
+                    'signatures': [["variable5", "variable4"]],
+                    "performance": {
+                      "Area Under the ROC Curve": 0.951428730938,
+                    }},
             },
             'startTime': '2021-02-26T11:04:15Z', 'executionTimeInSeconds': 10}
         """
