@@ -49,8 +49,6 @@ class JadRequestResponseError(Exception):
         super().__init__(message)
 
 class JadHttpClient(object):
-    HOST = 'https://jadapi.jadbio.com'
-
     """
     This class provides major JADBio functionality to python users using API calls.
     Requests are HTTP GET and POST only.
@@ -58,6 +56,8 @@ class JadHttpClient(object):
     GET requests are read-only and idempotent.
     """
 
+    HOST = 'https://jadapi.jadbio.com'
+    
     session = None
     token = None
 
