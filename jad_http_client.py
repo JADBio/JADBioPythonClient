@@ -24,6 +24,9 @@ GET_PREDICTIONS_PATH = PUBLIC_API_BASE + 'analysis/{}/predictions/{}/{}'
 GET_PREDICTION_RESULT_PATH = PUBLIC_API_BASE + 'prediction/{}/result?format=csv'
 GET_PREDICTION_PATH = PUBLIC_API_BASE + 'prediction/{}'
 PREDICT_OUTCOME_PATH = PUBLIC_API_BASE + 'analysis/{}/predict/{}'
+AVAILABLE_PLOTS_PATH = PUBLIC_API_BASE + 'analysis/{}/availablePlots?modelKey={}'
+GET_PLOT_PATH = PUBLIC_API_BASE + 'analysis/{}/getPlot?modelKey={}&plotKey={}'
+GET_PLOTS_PATH = PUBLIC_API_BASE + 'analysis/{}/getPlots?modelKey={}'
 
 class RequestFailed(Exception):
     pass
@@ -743,6 +746,105 @@ class JadHttpClient(object):
 
         ret = self.session.post(self.HOST + DELETE_PATH.format('analysis', analysis_id), headers=self.token)
         return JadHttpClient.__parse_response__(ret, 'Delete analysis')
+
+    def available_plots(self, analysis_id: str, model_key: str):
+        """
+        Retrieves the plot names of the computed plots for a given model in an analysis.
+
+        :param str analysis_id: Identifies the analysis.
+        :param str model_key: A key present in analysis_result['models'] (e.g. 'best' or 'interpretable')
+        :return: {analysisId: string, modelKey: string, plots: string[]}
+        :rtype: dict
+        :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
+
+        The analysisId, modelKey is the same as in the request. The plots array contains the plot names that are
+        available for the current modelKey.
+
+        :Example:
+
+        >>> client = JadHttpClient('juser@gmail.com', 'a password')
+        >>> client.available_plots('5219', "best")
+        {'analysisId': '5219', 'modelKey': 'best',
+            'plots': ['Feature Importance', 'Progressive Feature Importance']}
+        """
+
+        ret = self.session.get(self.HOST + AVAILABLE_PLOTS_PATH.format(analysis_id, model_key), headers=self.token)
+        return JadHttpClient.__parse_response__(ret, 'Available analysis')
+
+    def get_plot(self, analysis_id: str, model_key: str, plot_key: str):
+        """
+        Retrieves the raw values of a plot for a modelKey - analysis pair.
+
+        :param str analysis_id: Identifies the analysis.
+        :param str model_key: A key present in analysis_result['models'] (e.g. 'best' or 'interpretable')
+        :param str plot_key: A key present in available_plots['plots'] (e.g. 'Feature Importance')
+        :return: {analysis_id: string, modelKey: string, plot: {plot_key: object}}
+        :rtype: dict
+        :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
+
+        The analysisId, model_key are the same as in the request. The plot object contains the raw values of the
+        requested plot.
+
+        :Example:
+
+        >>> client = JadHttpClient('juser@gmail.com', 'a password')
+        >>> client.get_plot('5219', "best", "Progressive Feature Importance")
+        {'analysisId': '5219', 'modelKey': 'best',
+            'plot': {
+                'Progressive Feature Importance': [
+                    {
+                        'name': ['variable5'],
+                        'cis': [0.9826582435278086, 1.0],
+                        'value': 0.9946595460614152},
+                    {
+                        'name': ['variable5', 'variable4'],
+                        'cis': [1.0, 1.0],
+                        'value': 1.0}]}
+        }
+
+        """
+
+        ret = self.session.get(self.HOST + GET_PLOT_PATH.format(analysis_id, model_key, plot_key), headers=self.token)
+        return JadHttpClient.__parse_response__(ret, 'Get plot')
+
+    def get_plots(self, analysis_id: str, model_key: str):
+        """
+        Retrieves the raw values of all the available plots for a modelKey - analysis pair.
+
+        :param str analysis_id: Identifies the analysis.
+        :param str model_key: A key present in analysis_result['models'] (e.g. 'best' or 'interpretable')
+        :return: {analysis_id: string, model_key: string, plots: {plot_key: object}[]}
+        :rtype: dict
+        :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
+
+        The analysisId, model_key are the same as in the request. The plots array contains the raw values of plot
+        objects per plotKey present in the request.
+
+        :Example:
+
+        >>> client = JadHttpClient('juser@gmail.com', 'a password')
+        >>> client.get_plots('5219', "best")
+        {'analysisId': '5548', 'modelKey': 'best',
+            'plots': [
+                {'Feature Importance': [{
+                    'name': 'variable5',
+                    'cis': [0.0, 0.017277777777777836],
+                    'value': '0.0053404539385848585'},
+                    {'name': 'variable4',
+                    'cis': [0.0, 0.017341756472191352],
+                    'value': '0.0053404539385848585'}]},
+                {'Progressive Feature Importance': [{
+                    'name': ['variable5'],
+                    'cis': [0.9826582435278086, 1.0],
+                    'value': 0.9946595460614152},
+                    {'name': ['variable5', 'variable4'],
+                    'cis': [1.0, 1.0],
+                    'value': 1.0}]}]}
+
+        """
+
+        ret = self.session.get(self.HOST + GET_PLOTS_PATH.format(analysis_id, model_key), headers=self.token)
+        return JadHttpClient.__parse_response__(ret, 'Get plots')
 
     def predict_outcome(self, analysis_id: str, dataset_id: str, model_key: str, signature_index: int = 0):
         """
