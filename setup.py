@@ -2,8 +2,8 @@ from setuptools import setup
 
 setup(
     name='JADBioPythonClient',
-    version='0.0.1',
-    packages=[''],
+    version='0.1.0',
+    packages=['jadbio'],
     url='',
     license='',
     author='JADBio',
