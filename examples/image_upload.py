@@ -71,7 +71,7 @@ def upload_type2(
     finally:
         os.remove(target_path)
 
-client = jadbio.client.JadbioV1Client('pkatsogr', 'led13lemmy', 'https://dev2.jadbio.com:4443')
+client = jadbio.client.JadbioV1Client('user', 'pass', 'https://api.jadbio.com')
 
 project = 147
 location = '/home/pkatsogr/repos/github/jad/clients/python/JADBioPythonClient/examples/resources/histo'
