@@ -1069,23 +1069,21 @@ class JadbioV1Client(object):
             }
         )
         resp = requests.post(
-            self.host + IMAGE_UPLOAD_ADD_SAMPLE_ENDPOINT.format(task),
+            self.HOST + IMAGE_UPLOAD_ADD_SAMPLE_ENDPOINT.format(taskId=task),
             data=mp_encoder,
             headers={
                 'Content-Type': mp_encoder.content_type,
-                'Authorization': "Bearer" + " " + self.token
+                'Authorization': self.token['Authorization']
             }
         )
-        return JadbioV1Client.__parse_response__(resp)['']
+        return JadbioV1Client.__parse_response__(resp, 'Image Sample Upload')
 
     def image_upload_commit(self, task_id: str):
-        resp = requests.post(
-            self.host + IMAGE_UPLOAD_COMMIT_ENDPOINT.format(task_id),
+        resp = requests.get(
+            self.HOST + IMAGE_UPLOAD_COMMIT_ENDPOINT.format(taskId=task_id),
             headers= __json_headers__(self.token)
         )
-        if not resp.ok:
-            print(resp.content)
-            raise
+        return JadbioV1Client.__parse_response__(resp, 'Image Upload Commit')
 
     def __init_job(self, project: int, name: str, target_path: str, has_feature_names=True, description: str = None):
         data_file = target_path
@@ -1096,15 +1094,15 @@ class JadbioV1Client(object):
             }
         )
         resp = requests.post(
-            self.host + IMAGE_UPLOAD_INIT_ENDPOINT,
+            self.HOST + IMAGE_UPLOAD_INIT_ENDPOINT,
             data=mp_encoder,
             headers={
                 'Content-Type': mp_encoder.content_type,
-                'Authorization': "Bearer" + " " + self.token
+                'Authorization': self.token['Authorization']
             },
             verify=True
         )
-        return JadbioV1Client.__parse_response__(resp)
+        return JadbioV1Client.__parse_response__(resp, 'Image Upload init')['taskId']
 
 
 
@@ -1137,9 +1135,9 @@ def __json_encode_image_init__(project_id: int, name: str, description: str, has
             'projectId': project_id,
             'name': name,
             'description': description,
-            'hasFeatureNames': has_feature_names
+            'hasFeatureHeaders': has_feature_names
         }
     )
 
 def __json_headers__(token):
-    return {'Content-type':'application/json','Authorization': 'Bearer'+' '+token}
+    return {'Content-type':'application/json', 'Authorization': token['Authorization']}
