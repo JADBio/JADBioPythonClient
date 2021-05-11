@@ -3,19 +3,19 @@ import time
 
 import sys
 import pathlib
+import jadbio.client as jad
 
 if __name__ == '__main__':
     cur_folder_pth = str(pathlib.Path(__file__).parent.absolute())
 
     # insert to pth so that imports will work
     sys.path.insert(1, cur_folder_pth+"/..")
-    from jad_http_client import JadHttpClient
     from helper import upload_dataset
 
     pth_to_resources = cur_folder_pth+'/resources'
 
     # initialize session
-    client = JadHttpClient('an active JADBio username or email', 'password')
+    client = jad.JadbioClient('an active JADBio username or email', 'password')
     print("Version: " + client.get_version())
     # create a new project
     pid = client.create_project("this_is_a_name")

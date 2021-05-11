@@ -18,7 +18,7 @@ def image_files_in_dir(dir: str):
     return [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir, f)) and f.split(".")[1] in SUPPORTED_IMAGE_TYPES]
 
 
-def wait_for_job(client: jadbio.client.JadbioV1Client, task: str):
+def wait_for_job(client: jadbio.client.JadbioClient, task: str):
     while True:
         resp_body = client.get_task_status(task)
         status = resp_body['state'].upper()
@@ -33,7 +33,7 @@ def wait_for_job(client: jadbio.client.JadbioV1Client, task: str):
             time.sleep(1)
 
 def upload_type2(
-        jadbio_client: jadbio.client.JadbioV1Client,
+        jadbio_client: jadbio.client.JadbioClient,
         project: int,
         name: str,
         data_folder: str,
@@ -66,9 +66,21 @@ def upload_type2(
     finally:
         os.remove(target_path)
 
-client = jadbio.client.JadbioV1Client('user', 'pass', 'https://api.jadbio.com')
+client = jadbio.client.JadbioClient('user', 'pass', 'https://api.jadbio.com')
 
 project = 11
+# This kind of upload works only for classification
+# It is assumed that the directory has the following format
+#folder
+#   -> class1
+#       -> img1
+#       -> img2
+#       ...
+#   -> class2
+#       -> img3
+#       -> img4
+#       ...
+#   ...
 location = '/path/to/image'
 d = upload_type2(jadbio_client=client, project=project, name='image', data_folder=location)
 

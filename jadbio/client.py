@@ -60,7 +60,7 @@ class JadRequestResponseError(Exception):
         super().__init__(message)
 
 
-class JadbioV1Client(object):
+class JadbioClient(object):
     """
     This class provides major JADBio functionality to python users using API calls.
     Requests are HTTP GET and POST only.
@@ -84,7 +84,7 @@ class JadbioV1Client(object):
 
         :Example:
 
-        >>> client = JadbioV1Client('juser@gmail.com', 'a password')
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
         """
         if host is not None:
             self.HOST = host
@@ -109,13 +109,13 @@ class JadbioV1Client(object):
 
         :Example:
 
-        >>> client = JadbioV1Client('juser@gmail.com', 'a password')
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> print(client.get_version())
         1.0-beta
         """
 
         ret = self.session.get(self.HOST + GET_VERSION_PATH, headers=self.token)
-        return JadbioV1Client.__parse_response__(ret, 'Get Version')['version']
+        return JadbioClient.__parse_response__(ret, 'Get Version')['version']
 
     def login(self, username: str, passwrd: str):
         """
@@ -128,7 +128,7 @@ class JadbioV1Client(object):
 
         :Example:
 
-        >>> client = JadbioV1Client('juser@gmail.com', 'a password')
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> client.login('anothermail@gmail.com', 'another password')
         """
 
@@ -137,7 +137,7 @@ class JadbioV1Client(object):
         loginRequest = {'usernameOrEmail': username, 'password': passwrd}
         res = self.session.post(self.HOST + LOGIN_API_PATH, json=loginRequest)
 
-        login = JadbioV1Client.__parse_response__(res, 'Login')
+        login = JadbioClient.__parse_response__(res, 'Login')
 
         self.token = {'Authorization': ' '.join(['Bearer', login['token']])}
 
@@ -148,7 +148,7 @@ class JadbioV1Client(object):
 
         :Example:
 
-        >>> client = JadbioV1Client('juser@gmail.com', 'a password')
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> client.logout()
         """
 
@@ -167,7 +167,7 @@ class JadbioV1Client(object):
 
         :Example:
 
-        >>> client = JadbioV1Client('juser@gmail.com', 'a password')
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> client.create_project("this_is_a_project_name")
         '314'
         """
@@ -175,7 +175,7 @@ class JadbioV1Client(object):
         projectRequest = {'name': name, 'description': descr}
         res = self.session.post(self.HOST + NEW_PROJECT_PATH, json=projectRequest,
                                 headers=self.token)
-        return str(JadbioV1Client.__parse_response__(res, 'Create project')['projectId'])
+        return str(JadbioClient.__parse_response__(res, 'Create project')['projectId'])
 
     def get_project(self, project_id: str):
         """
@@ -188,13 +188,13 @@ class JadbioV1Client(object):
 
         :Example:
 
-        >>> client = JadbioV1Client('juser@gmail.com', 'a password')
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> client.get_project("314")
         { projectId: '314', name: 'this_is_a_project_name' }
         """
 
         ret = self.session.get(self.HOST + GET_PROJECT_PATH.format(project_id), headers=self.token)
-        return JadbioV1Client.__parse_response__(ret, 'Get project')
+        return JadbioClient.__parse_response__(ret, 'Get project')
 
     def delete_project(self, project_id: str):
         """
@@ -208,13 +208,13 @@ class JadbioV1Client(object):
 
         :Example:
 
-        >>> client = JadbioV1Client('juser@gmail.com', 'a password')
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> client.delete_project(client.create_project("this_is_a_project_name"))
         {'projectId': '463', 'name': 'this_is_a_project_name'}
         """
 
         ret = self.session.post(self.HOST + DELETE_PATH.format('project', project_id), headers=self.token)
-        return JadbioV1Client.__parse_response__(ret, 'Delete project')
+        return JadbioClient.__parse_response__(ret, 'Delete project')
 
     def get_projects(self, offset: int = 0, count: int = 10):
         """
@@ -232,14 +232,14 @@ class JadbioV1Client(object):
 
         :Example:
 
-        >>> client = JadbioV1Client('juser@gmail.com', 'a password')
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> client.get_projects()
         {'offset': 0, 'totalCount': 1,
             'data': [{'projectId': '462', 'name': 'test'}]}
         """
 
         ret = self.session.get(self.HOST + GET_PROJECTS_PATH.format(offset, count), headers=self.token)
-        return JadbioV1Client.__parse_response__(ret, 'Get projects')
+        return JadbioClient.__parse_response__(ret, 'Get projects')
 
     def upload_file(self, file_id: int, pth_to_file: str):
         """
@@ -258,7 +258,7 @@ class JadbioV1Client(object):
 
         :Example:
 
-        >>> client = JadbioV1Client('juser@gmail.com', 'a password')
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> client.upload_file(1234, "pth/to/file.csv")
         1234
         """
@@ -267,7 +267,7 @@ class JadbioV1Client(object):
                                     headers=self.token)
 
             if ret.status_code != 200:
-                JadbioV1Client.__request_failed__(ret, 'Upload file')
+                JadbioClient.__request_failed__(ret, 'Upload file')
         return file_id
 
     def create_dataset(self, name: str, project_id: str, file_id: int, file_size_in_bytes: int, separator: str = ',',
@@ -295,7 +295,7 @@ class JadbioV1Client(object):
         :Example:
 
         >>> from os.path import getsize
-        >>> client = JadbioV1Client('juser@gmail.com', 'a password')
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> pid = client.create_project("this_is_a_project_name")
         >>> fid = client.upload_file(1234, "pth/to/file.csv")
         >>> client.create_dataset('file', pid, fid,
@@ -315,7 +315,7 @@ class JadbioV1Client(object):
         }
         ret = self.session.post(self.HOST + DATASET_CREATE_PATH.format(file_id),
                                 json=create_dataset_request, headers=self.token)
-        return str(JadbioV1Client.__parse_response__(ret, 'Create dataset')['taskId'])
+        return str(JadbioClient.__parse_response__(ret, 'Create dataset')['taskId'])
 
     def change_feature_types(self, dataset_id: str, new_name: str, changes: list):
         """
@@ -356,7 +356,7 @@ class JadbioV1Client(object):
 
         :Example:
 
-        >>> client = JadbioV1Client('juser@gmail.com', 'a password')
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> changes = [{'matcher': {'byName': ['variable1']},
         ...    'newType': 'categorical'}]
         >>> client.change_feature_types('6065', 'file_cat', changes)
@@ -374,7 +374,7 @@ class JadbioV1Client(object):
         }
         ret = self.session.post(self.HOST + CHANGE_FEATURE_TYPES_PATH.format(dataset_id),
                                 json=change_feature_types_request, headers=self.token)
-        return str(JadbioV1Client.__parse_response__(ret, 'Change feature types')['taskId'])
+        return str(JadbioClient.__parse_response__(ret, 'Change feature types')['taskId'])
 
     def get_task_status(self, task_id: str):
         """
@@ -387,14 +387,14 @@ class JadbioV1Client(object):
 
         :Example:
 
-        >>> client = JadbioV1Client('juser@gmail.com', 'a password')
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> client.get_task_status('689')
         {'taskId': '689', 'state': 'finished', 'datasetIds': ['6065'],
                                                         'datasetId': '6065'}
         """
 
         ret = self.session.get(self.HOST + GET_TASK_STATUS_PATH.format('task', task_id), headers=self.token)
-        return JadbioV1Client.__parse_response__(ret, 'Get task')
+        return JadbioClient.__parse_response__(ret, 'Get task')
 
     def get_dataset(self, dataset_id: str):
         """
@@ -409,14 +409,14 @@ class JadbioV1Client(object):
 
         :Example:
 
-        >>> client = JadbioV1Client('juser@gmail.com', 'a password')
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> client.get_dataset('6065')
         {'taskId': '689', 'state': 'finished', 'datasetIds': ['6065'],
                                                         'datasetId': '6065'}
         """
 
         ret = self.session.get(self.HOST + GET_DATASET_PATH.format(dataset_id), headers=self.token)
-        return JadbioV1Client.__parse_response__(ret, 'Get dataset')
+        return JadbioClient.__parse_response__(ret, 'Get dataset')
 
     def get_datasets(self, project_id: str, offset: int = 0, count: int = 10):
         """
@@ -444,7 +444,7 @@ class JadbioV1Client(object):
 
         :Example:
 
-        >>> client = JadbioV1Client('juser@gmail.com', 'a password')
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> client.get_datasets('462')
         {'projectId': '462', 'offset': 0, 'totalCount': 2, 'data': [
                 {'projectId': '462', 'datasetId': '6065', 'name': 'file',
@@ -453,7 +453,7 @@ class JadbioV1Client(object):
         """
 
         ret = self.session.get(self.HOST + GET_DATASETS_PATH.format(project_id, offset, count), headers=self.token)
-        return JadbioV1Client.__parse_response__(ret, 'Get datasets')
+        return JadbioClient.__parse_response__(ret, 'Get datasets')
 
     def delete_dataset(self, dataset_id: str):
         """
@@ -469,14 +469,14 @@ class JadbioV1Client(object):
 
         :Example:
 
-        >>> client = JadbioV1Client('juser@gmail.com', 'a password')
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> client.delete_dataset('6065')
         {'datasetId': '6065', 'name': 'file', 'sampleCount': 150,
             'featureCount': 6, 'sizeInBytes': 4507}
         """
 
         ret = self.session.post(self.HOST + DELETE_PATH.format('dataset', dataset_id), headers=self.token)
-        return JadbioV1Client.__parse_response__(ret, 'Delete dataset')
+        return JadbioClient.__parse_response__(ret, 'Delete dataset')
 
     def analyze_dataset(self, dataset_id: str, name: str, outcome: dict, thoroughness: str = 'preliminary',
                         core_count: int = 1, grouping_feat: str = None, models_considered: str = 'all',
@@ -523,7 +523,7 @@ class JadbioV1Client(object):
 
         :Example:
 
-        >>> client = JadbioV1Client('juser@gmail.com', 'a password')
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> client.analyze_dataset('6067', 'file_classification',
         ...    {'classification': 'variable1'})
         '5219'
@@ -545,7 +545,7 @@ class JadbioV1Client(object):
             analyze_dataset_request['groupingFeature'] = grouping_feat
         ret = self.session.post(self.HOST + ANALYZE_DATASET_PATH.format(dataset_id),
                                 json=analyze_dataset_request, headers=self.token)
-        return str(JadbioV1Client.__parse_response__(ret, 'Analyze dataset')['analysisId'])
+        return str(JadbioClient.__parse_response__(ret, 'Analyze dataset')['analysisId'])
 
     def get_analysis(self, analysis_id: str):
         """Returns an analysis.
@@ -558,7 +558,7 @@ class JadbioV1Client(object):
 
         :Example:
 
-        >>> client = JadbioV1Client('juser@gmail.com', 'a password')
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> client.get_analysis('5219')
         {
             'analysisId': '5219',
@@ -578,7 +578,7 @@ class JadbioV1Client(object):
         """
 
         ret = self.session.get(self.HOST + GET_ANALYSIS_PATH.format(analysis_id), headers=self.token)
-        return JadbioV1Client.__parse_response__(ret, 'Get analysis')
+        return JadbioClient.__parse_response__(ret, 'Get analysis')
 
     def get_analyses(self, project_id: str, offset: int = 0, count: int = 10):
         """
@@ -599,7 +599,7 @@ class JadbioV1Client(object):
 
         :Example:
 
-        >>> client = JadbioV1Client('juser@gmail.com', 'a password')
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> client.get_analyses('462')
         {'projectId': '462', 'offset': 0, 'totalCount': 1, 'data': [{
             'analysisId': '5219',
@@ -618,7 +618,7 @@ class JadbioV1Client(object):
         """
 
         ret = self.session.get(self.HOST + GET_ANALYSES_PATH.format(project_id, offset, count), headers=self.token)
-        return JadbioV1Client.__parse_response__(ret, 'Get analyses')
+        return JadbioClient.__parse_response__(ret, 'Get analyses')
 
     def get_analysis_status(self, analysis_id: str):
         """
@@ -636,7 +636,7 @@ class JadbioV1Client(object):
 
         :Example:
 
-        >>> client = JadbioV1Client('juser@gmail.com', 'a password')
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> client.get_analysis_status('5219')
         {
             'analysisId': '5219',
@@ -657,7 +657,7 @@ class JadbioV1Client(object):
         """
 
         ret = self.session.get(self.HOST + GET_TASK_STATUS_PATH.format('analysis', analysis_id), headers=self.token)
-        return JadbioV1Client.__parse_response__(ret, 'Get analysis status')
+        return JadbioClient.__parse_response__(ret, 'Get analysis status')
 
     def get_analysis_result(self, analysis_id: str):
         """
@@ -677,7 +677,7 @@ class JadbioV1Client(object):
 
         :Example:
 
-        >>> client = JadbioV1Client('juser@gmail.com', 'a password')
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> client.get_analysis_result('5219')
         {'mlEngine': 'jadbio-1.1.0', 'analysisId': '5219',
             'parameters': {
@@ -720,7 +720,7 @@ class JadbioV1Client(object):
         """
 
         ret = self.session.get(self.HOST + GET_ANALYSIS_RESULT_PATH.format(analysis_id), headers=self.token)
-        return JadbioV1Client.__parse_response__(ret, 'Get analysis result')
+        return JadbioClient.__parse_response__(ret, 'Get analysis result')
 
     def delete_analysis(self, analysis_id: str):
         """
@@ -737,7 +737,7 @@ class JadbioV1Client(object):
 
         :Example:
 
-        >>> client = JadbioV1Client('juser@gmail.com', 'a password')
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> client.delete_analysis('5219')
         {'analysisId': '5219', 'projectId': '462',
             'parameters': {
@@ -754,7 +754,7 @@ class JadbioV1Client(object):
         """
 
         ret = self.session.post(self.HOST + DELETE_PATH.format('analysis', analysis_id), headers=self.token)
-        return JadbioV1Client.__parse_response__(ret, 'Delete analysis')
+        return JadbioClient.__parse_response__(ret, 'Delete analysis')
 
     def available_plots(self, analysis_id: str, model_key: str):
         """
@@ -771,14 +771,14 @@ class JadbioV1Client(object):
 
         :Example:
 
-        >>> client = JadbioV1Client('juser@gmail.com', 'a password')
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> client.available_plots('5219', "best")
         {'analysisId': '5219', 'modelKey': 'best',
             'plots': ['Feature Importance', 'Progressive Feature Importance']}
         """
 
         ret = self.session.get(self.HOST + AVAILABLE_PLOTS_PATH.format(analysis_id, model_key), headers=self.token)
-        return JadbioV1Client.__parse_response__(ret, 'Available analysis')
+        return JadbioClient.__parse_response__(ret, 'Available analysis')
 
     def get_plot(self, analysis_id: str, model_key: str, plot_key: str):
         """
@@ -796,7 +796,7 @@ class JadbioV1Client(object):
 
         :Example:
 
-        >>> client = JadbioV1Client('juser@gmail.com', 'a password')
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> client.get_plot('5219', "best", "Progressive Feature Importance")
         {'analysisId': '5219', 'modelKey': 'best',
             'plot': {
@@ -814,7 +814,7 @@ class JadbioV1Client(object):
         """
 
         ret = self.session.get(self.HOST + GET_PLOT_PATH.format(analysis_id, model_key, plot_key), headers=self.token)
-        return JadbioV1Client.__parse_response__(ret, 'Get plot')
+        return JadbioClient.__parse_response__(ret, 'Get plot')
 
     def get_plots(self, analysis_id: str, model_key: str):
         """
@@ -831,7 +831,7 @@ class JadbioV1Client(object):
 
         :Example:
 
-        >>> client = JadbioV1Client('juser@gmail.com', 'a password')
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> client.get_plots('5219', "best")
         {'analysisId': '5548', 'modelKey': 'best',
             'plots': [
@@ -853,7 +853,7 @@ class JadbioV1Client(object):
         """
 
         ret = self.session.get(self.HOST + GET_PLOTS_PATH.format(analysis_id, model_key), headers=self.token)
-        return JadbioV1Client.__parse_response__(ret, 'Get plots')
+        return JadbioClient.__parse_response__(ret, 'Get plots')
 
     def predict_outcome(self, analysis_id: str, dataset_id: str, model_key: str, signature_index: int = 0):
         """
@@ -872,7 +872,7 @@ class JadbioV1Client(object):
 
         :Example:
 
-        >>> client = JadbioV1Client('juser@gmail.com', 'a password')
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> client.predict_outcome('5219', '6067', 'best')
         '431'
         """
@@ -883,7 +883,7 @@ class JadbioV1Client(object):
         }
         ret = self.session.post(self.HOST + PREDICT_OUTCOME_PATH.format(analysis_id, dataset_id),
                                 json=predict_outcome_request, headers=self.token)
-        return str(JadbioV1Client.__parse_response__(ret, 'Predict outcome')['predictionId'])
+        return str(JadbioClient.__parse_response__(ret, 'Predict outcome')['predictionId'])
 
     def get_prediction(self, prediction_id: str):
         """
@@ -897,7 +897,7 @@ class JadbioV1Client(object):
 
         :Example:
 
-        >>> client = JadbioV1Client('juser@gmail.com', 'a password')
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> client.get_prediction('431')
         {
             'projectId': '462',
@@ -912,7 +912,7 @@ class JadbioV1Client(object):
         """
 
         ret = self.session.get(self.HOST + GET_PREDICTION_PATH.format(prediction_id), headers=self.token)
-        return JadbioV1Client.__parse_response__(ret, 'Get prediction')
+        return JadbioClient.__parse_response__(ret, 'Get prediction')
 
     def get_predictions(self, analysis_id: str, offset: int = 0, count: int = 10):
         """
@@ -932,7 +932,7 @@ class JadbioV1Client(object):
 
         :Example:
 
-        >>> client = JadbioV1Client('juser@gmail.com', 'a password')
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> client.get_predictions('5219')
         {
             'analysisId': '5219'
@@ -952,7 +952,7 @@ class JadbioV1Client(object):
         """
 
         ret = self.session.get(self.HOST + GET_PREDICTIONS_PATH.format(analysis_id, offset, count), headers=self.token)
-        return JadbioV1Client.__parse_response__(ret, 'Get predictions')
+        return JadbioClient.__parse_response__(ret, 'Get predictions')
 
     def get_prediction_status(self, prediction_id: str):
         """
@@ -965,13 +965,13 @@ class JadbioV1Client(object):
 
         :Example:
 
-        >>> client = JadbioV1Client('juser@gmail.com', 'a password')
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> client.get_prediction_status('431')
         {'predictionId': '431', 'state': 'finished'}
         """
 
         ret = self.session.get(self.HOST + GET_TASK_STATUS_PATH.format('prediction', prediction_id), headers=self.token)
-        return JadbioV1Client.__parse_response__(ret, 'Get prediction status')
+        return JadbioClient.__parse_response__(ret, 'Get prediction status')
 
     def get_prediction_result(self, prediction_id: str):
         """
@@ -984,7 +984,7 @@ class JadbioV1Client(object):
 
         :Example:
 
-        >>> client = JadbioV1Client('juser@gmail.com', 'a password')
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> client.get_prediction_result('431')
         "Sample name,Prob ( class = firstcat ),Prob ( class = scndcat ),
                                                     Prob ( class = thirdCat )
@@ -998,7 +998,7 @@ class JadbioV1Client(object):
 
         ret = self.session.get(self.HOST + GET_PREDICTION_RESULT_PATH.format(prediction_id), headers=self.token)
         if ret.status_code != 200:
-            JadbioV1Client.__request_failed__(ret, "Get prediction result")
+            JadbioClient.__request_failed__(ret, "Get prediction result")
         return ret.content.decode("utf-8")
 
     def delete_prediction(self, prediction_id: str):
@@ -1013,7 +1013,7 @@ class JadbioV1Client(object):
 
         :Example:
 
-        >>> client = JadbioV1Client('juser@gmail.com', 'a password')
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> client.delete_prediction('431')
         {'projectId': '462', 'predictionId': '431',
             'parameters': {'analysisId': '5219',
@@ -1025,7 +1025,7 @@ class JadbioV1Client(object):
         }
         """
         ret = self.session.post(self.HOST + DELETE_PATH.format('prediction', prediction_id), headers=self.token)
-        return JadbioV1Client.__parse_response__(ret, 'Delete prediction')
+        return JadbioClient.__parse_response__(ret, 'Delete prediction')
 
     def image_upload_init(
             self,
@@ -1076,14 +1076,14 @@ class JadbioV1Client(object):
                 'Authorization': self.token['Authorization']
             }
         )
-        return JadbioV1Client.__parse_response__(resp, 'Image Sample Upload')
+        return JadbioClient.__parse_response__(resp, 'Image Sample Upload')
 
     def image_upload_commit(self, task_id: str):
         resp = requests.get(
             self.HOST + IMAGE_UPLOAD_COMMIT_ENDPOINT.format(taskId=task_id),
             headers= __json_headers__(self.token)
         )
-        return JadbioV1Client.__parse_response__(resp, 'Image Upload Commit')
+        return JadbioClient.__parse_response__(resp, 'Image Upload Commit')
 
     def __init_job(self, project: int, name: str, target_path: str, has_feature_names=True, description: str = None):
         data_file = target_path
@@ -1102,7 +1102,7 @@ class JadbioV1Client(object):
             },
             verify=True
         )
-        return JadbioV1Client.__parse_response__(resp, 'Image Upload init')['taskId']
+        return JadbioClient.__parse_response__(resp, 'Image Upload init')['taskId']
 
 
 
@@ -1110,7 +1110,7 @@ class JadbioV1Client(object):
     @staticmethod
     def __parse_response__(resp, where):
         if resp.status_code != 200:
-            JadbioV1Client.__request_failed__(resp, where)
+            JadbioClient.__request_failed__(resp, where)
         res = resp.json()
         if res['status'] != 'success':
             raise JadRequestResponseError(res, where)
