@@ -5,7 +5,7 @@
 
 import time
 
-import jadbio.client
+import jadbio.client as jad
 import os
 SUPPORTED_IMAGE_TYPES = ['jpeg', 'jpg', 'tif', 'png', 'bmp']
 
@@ -37,7 +37,7 @@ project = 1607
 # ...
 
 location = '/path/to/client/histo/'
-client = jadbio.client.JadbioClient('user', 'pass', 'https://api.jadbio.com')
+client = jad.JadbioClient('user', 'pass')
 
 image_files = image_files_in_dir(location)
 task = client.image_upload_init(project, 'image', location+'/target.csv', True)
