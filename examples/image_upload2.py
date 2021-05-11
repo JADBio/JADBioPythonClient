@@ -2,7 +2,7 @@
 import tempfile
 import time
 
-import jadbio.client
+import jadbio.client as jad
 import os
 SUPPORTED_IMAGE_TYPES = ['jpeg', 'jpg', 'tif', 'png', 'bmp']
 
@@ -66,7 +66,7 @@ def upload_type2(
     finally:
         os.remove(target_path)
 
-client = jadbio.client.JadbioClient('user', 'pass', 'https://api.jadbio.com')
+client = jad.JadbioClient('user', 'pass')
 
 project = 11
 # This kind of upload works only for classification
@@ -83,5 +83,3 @@ project = 11
 #   ...
 location = '/path/to/image'
 d = upload_type2(jadbio_client=client, project=project, name='image', data_folder=location)
-
-# upload_type2(client, )
