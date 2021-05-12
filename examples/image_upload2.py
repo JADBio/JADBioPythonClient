@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import json
 import tempfile
 import time
 
@@ -21,18 +20,14 @@ def image_files_in_dir(dir: str):
 
 def wait_for_job(client: jadbio.client.JadbioV1Client, task: str):
     while True:
-        resp = client.get_task_status(task)
-        if not resp.ok:
-            print(resp.content)
-            raise
-        resp_body = json.loads(resp.content)
-        status = resp_body['state']
+        resp_body = client.get_task_status(task)
+        status = resp_body['state'].upper()
         if(status=='ERROR'):
             print('ERROR')
             raise
         elif(status=='FINISHED'):
             print('FINISHED 100%')
-            return resp_body['did']
+            return resp_body['datasetId']
         else:
             print('RUNNING')
             time.sleep(1)
@@ -73,8 +68,8 @@ def upload_type2(
 
 client = jadbio.client.JadbioV1Client('user', 'pass', 'https://api.jadbio.com')
 
-project = 147
-location = '/home/pkatsogr/repos/github/jad/clients/python/JADBioPythonClient/examples/resources/histo'
-upload_type2(jadbio_client=client, project=project, name='image', data_folder=location)
+project = 11
+location = '/path/to/image'
+d = upload_type2(jadbio_client=client, project=project, name='image', data_folder=location)
 
 # upload_type2(client, )
