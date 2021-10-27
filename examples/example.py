@@ -42,6 +42,16 @@ if __name__ == '__main__':
 
         # get dataset_id when finished
         dataset_id = status['datasetId']
+
+        # check if everything seems ok with running an analysis with these parameters
+        possible_warning_error = client.analyze_dataset_check(dataset_id, 'iris_analysis', {'classification': 'variable1'}, max_signature_size=10, max_visualized_signature_count=50)
+        for key, messages in possible_warning_error.items():
+            print(key+": "+str(messages))
+
+            # if errors exist in analysis check, throw an exception
+            if 'errors' in key:
+                raise Exception("Invalid analysis parameters: "+str(messages))
+
         analysis_id = client.analyze_dataset(dataset_id, 'iris_analysis', {'classification': 'variable1'}, max_signature_size=10, max_visualized_signature_count=50)
 
         status = client.get_analysis_status(analysis_id)
