@@ -31,6 +31,15 @@ if __name__ == '__main__':
         # changes to set variable1 of the uploaded dataset as categorical
         changes = [{'matcher': {'byName': ['variable1']}, 'newType': 'categorical'}]
 
+        # check if everything seems ok with current proposed transformation
+        possible_warning_error = client.change_feature_types_check(dataset_id, 'iris_cat', changes)
+        for key, messages in possible_warning_error.items():
+            print(key+": "+str(messages))
+
+            # if errors exist in analysis check, throw an exception
+            if 'errors' in key:
+                raise Exception("Invalid transformation: "+str(messages))
+
         # make changes and store modified dataset with name iris_cat
         tid = client.change_feature_types(dataset_id, 'iris_cat', changes)
         status = client.get_task_status(tid)
