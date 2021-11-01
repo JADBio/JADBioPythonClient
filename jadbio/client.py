@@ -19,6 +19,7 @@ GET_TASK_STATUS_PATH = PUBLIC_API_BASE + '{}/{}/status'
 GET_DATASETS_PATH = PUBLIC_API_BASE + 'datasets/{}/{}/{}'
 GET_DATASET_PATH = PUBLIC_API_BASE + 'dataset/{}'
 CHANGE_FEATURE_TYPES_PATH = PUBLIC_API_BASE + 'dataset/{}/changeFeatureTypes'
+CHECK_CHANGE_FEATURE_TYPES_PATH = PUBLIC_API_BASE + 'dataset/{}/check/changeFeatureTypes'
 ANALYZE_DATASET_PATH = PUBLIC_API_BASE + 'dataset/{}/analyze'
 ANALYZE_DATASET_CHECK_PATH = PUBLIC_API_BASE + 'dataset/{}/check/analyze'
 GET_ANALYSES_PATH = PUBLIC_API_BASE + 'analyses/all/{}/{}/{}'
@@ -317,6 +318,61 @@ class JadbioClient(object):
         ret = self.session.post(self.HOST + DATASET_CREATE_PATH.format(file_id),
                                 json=create_dataset_request, headers=self.token)
         return str(JadbioClient.__parse_response__(ret, 'Create dataset')['taskId'])
+
+    def change_feature_types_check(self, dataset_id: str, new_name: str, changes: list):
+        """
+        Check for possible warnings and/or errors in the creation of an alternative version of a specified dataset
+        using different feature types.
+
+        :param str dataset_id:  Identifies the source dataset. It must belong to a project to which the user has read
+            and write permissions. The new dataset will be attached to that same project.
+        :param str new_name: Used to name the new dataset. It must have at least 3 and at most 60 characters and must
+            be unique within the target project.
+        :param list changes: list of { matcher: dict, newType: string }. Each element of the changes array matches some
+            features of the source dataset as specified by the matcher field. The types of those features in the new
+            dataset will be changed to the type given by newType whose value must be one of numerical, categorical,
+            timeToEvent, event, or identifier. If some feature is matched by multiple matchers, the last matching entry
+            in the changes array determines its new type.
+
+            **'byName'** field provides the exact names of the features to match
+
+            { matcher: { "byName": [name1,...,nameN] }, newType: string }
+
+            **'byIndex'** field provides the 0-based column indices of the features to match
+
+            { matcher: { "byIndex": [id1,...,idN] }, newType: string }
+
+            'byCurrentType' field provides the current type of the features to match.
+            It must be one of 'numerical', 'categorical', 'timeToEvent', 'event', or 'identifier'.
+
+            { matcher: { "byCurrentType": string }, newType: string }
+
+            **'byDeducedType'**  field provides the "deduced" type of the features to match.
+            It must be either categorical or identifier. Features have "deduced" types in cases where feature data did
+            not provide sufficient clarity about the intended type, and so JADBio deduced a type on a best-effort basis.
+
+            { matcher: { "byDeducedType": string }, newType: string }
+
+        :return: {errors?: [string], warnings?: [string], suggestions?: [string]}
+        :rtype: dict
+        :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
+
+        :Example:
+
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
+        >>> changes = [{'matcher': {'byName': ['variable1']},
+        ...    'newType': 'numerical'}]
+        >>> client.change_feature_types_check('6065', 'file_cat', changes)
+        {"warnings: ["IdentityTransformation"]}
+        """
+
+        change_feature_types_request = {
+            'newName': new_name,
+            'changes': changes
+        }
+        ret = self.session.post(self.HOST + CHECK_CHANGE_FEATURE_TYPES_PATH.format(dataset_id),
+                                json=change_feature_types_request, headers=self.token)
+        return JadbioClient.__parse_response__(ret, 'Check change feature types')
 
     def change_feature_types(self, dataset_id: str, new_name: str, changes: list):
         """
