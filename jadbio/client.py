@@ -30,6 +30,7 @@ GET_PREDICTIONS_PATH = PUBLIC_API_BASE + 'analysis/{}/predictions/{}/{}'
 GET_PREDICTION_RESULT_PATH = PUBLIC_API_BASE + 'prediction/{}/result?format=csv'
 GET_PREDICTION_PATH = PUBLIC_API_BASE + 'prediction/{}'
 PREDICT_OUTCOME_PATH = PUBLIC_API_BASE + 'analysis/{}/predict/{}'
+CHECK_PREDICT_OUTCOME_PATH = PUBLIC_API_BASE + 'analysis/{}/check/predict/{}'
 AVAILABLE_PLOTS_PATH = PUBLIC_API_BASE + 'analysis/{}/availablePlots?modelKey={}'
 GET_PLOT_PATH = PUBLIC_API_BASE + 'analysis/{}/getPlot?modelKey={}&plotKey={}'
 GET_PLOTS_PATH = PUBLIC_API_BASE + 'analysis/{}/getPlots?modelKey={}'
@@ -1014,6 +1015,38 @@ class JadbioClient(object):
         ret = self.session.post(self.HOST + PREDICT_OUTCOME_PATH.format(analysis_id, dataset_id),
                                 json=predict_outcome_request, headers=self.token)
         return str(JadbioClient.__parse_response__(ret, 'Predict outcome')['predictionId'])
+
+    def predict_outcome_check(self, analysis_id: str, dataset_id: str, model_key: str, signature_index: int = 0):
+        """
+        Launches a task that predicts outcome for an unlabeled dataset using a model found by a finished analysis.
+        (User must have read and execute permissions to the project that contains the analysis and the dataset to be
+        predicted.)
+
+        :param str analysis_id: Identifies the analysis, must belong to the same project as the dataset_id.
+        :param str dataset_id: Identifies a dataset containing unlabeled data, must belong to the same project as
+            analysis_id.
+        :param str model_key: A key present in analysis_result['models'] (e.g. 'best' or 'interpretable')
+        :param int signature_index: zero-based index of the model signature to use for the predictions.
+        :return: {errors?: [string], warnings?: [string], suggestions?: [string]}
+        :rtype: dict
+        :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
+
+        :Example:TestDataContainsSignatureFeatureCategoryNotInTrainingData
+
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
+        >>> client.predict_outcome_check('5219', '6067', 'best')
+        {
+            "errors": ["TestDataContainsSignatureFeatureCategoryNotInTrainingData"]
+        }
+        """
+
+        predict_outcome_request = {
+            'modelKey': model_key,
+            'signatureIndex': signature_index
+        }
+        ret = self.session.post(self.HOST + CHECK_PREDICT_OUTCOME_PATH.format(analysis_id, dataset_id),
+                                json=predict_outcome_request, headers=self.token)
+        return JadbioClient.__parse_response__(ret, 'Check Predict outcome')
 
     def get_prediction(self, prediction_id: str):
         """

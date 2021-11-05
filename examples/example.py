@@ -85,6 +85,15 @@ if __name__ == '__main__':
             # print the type of each best model found and it's configuration
             print(best_model_key+":\n\t"+str(best_conf))
 
+            # check if everything seems ok with predicting with these parameters an analysis with these parameters
+            possible_warning_error = client.predict_outcome_check(analysis_id, dataset_id2, best_model_key)
+            for key, messages in possible_warning_error.items():
+                print(key + ": " + str(messages))
+
+                # if errors exist in analysis check, throw an exception
+                if 'errors' in key:
+                    continue
+
             # create a prediction task on dataset_id2, using the current model
             prediction_id = client.predict_outcome(analysis_id, dataset_id2, best_model_key)
 
