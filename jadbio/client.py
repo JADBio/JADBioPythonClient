@@ -606,7 +606,7 @@ class JadbioClient(object):
                               models_considered: str = 'all', feature_selection: str = 'mostRelevant',
                               max_signature_size=None, max_visualized_signature_count=None):
         """
-        Check for possible errors and warnings, if an analysis is run on a specified dataset.
+        Check for possible errors and warnings, if an analysis with extra algorithms is run on a specified dataset.
 
         :param str dataset_id: Identity of a dataset attached to a project to which the user has execute permissions.
         :param str name: Provides the analysis with a human-readable name for future reference. The name can be at most
@@ -728,7 +728,8 @@ class JadbioClient(object):
                         models_considered: str = 'all', feature_selection: str = 'mostRelevant', max_signature_size=None,
                         max_visualized_signature_count=None):
         """
-        Initiate an analysis of a specified dataset.
+        Initiate an analysis of a specified dataset, with additional models specified by the user.
+        These models are added to be trained in the analysis on top of the models that JADBio selects using its AI system.
 
         :param str dataset_id: Identity of a dataset attached to a project to which the user has execute permissions.
         :param str name: Provides the analysis with a human-readable name for future reference. The name can be at most
@@ -785,7 +786,8 @@ class JadbioClient(object):
 
     def get_extra_models_description(self, outcome_type: str):
         """
-        Returns available extra model descriptions for the specified outcome type.
+        Retrieves descriptions for extra available models that can be explicitly added to an analysis.
+        These models can be added to be trained in the analysis on top of the models that JADBio selects using its AI system.
 
         :param str outcome_type: must be either 'regression, 'classification', or 'survival'. This parameter specifies
             the type of extra models to be retrieved.
