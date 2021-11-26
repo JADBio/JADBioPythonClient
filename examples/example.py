@@ -56,7 +56,7 @@ if __name__ == '__main__':
         extra_models = [{'name': 'KNeighborsClassifier', 'parameters': {'n_neighbors': 5}}]
 
         # check if everything seems ok with running an analysis with these parameters
-        possible_warning_error = client.analyze_dataset_check(dataset_id, 'iris_analysis', {'classification': 'variable1'},
+        possible_warning_error = client.analyze_dataset_extra_models_check(dataset_id, 'iris_analysis', {'classification': 'variable1'},
                                                               max_signature_size=10, max_visualized_signature_count=50,
                                                               extra_models=extra_models)
         for key, messages in possible_warning_error.items():
@@ -66,7 +66,7 @@ if __name__ == '__main__':
             if 'errors' in key:
                 raise Exception("Invalid analysis parameters: "+str(messages))
 
-        analysis_id = client.analyze_dataset(dataset_id, 'iris_analysis', {'classification': 'variable1'},
+        analysis_id = client.analyze_dataset_extra_models(dataset_id, 'iris_analysis', {'classification': 'variable1'},
                                              max_signature_size=10, max_visualized_signature_count=50,
                                              extra_models=extra_models)
 

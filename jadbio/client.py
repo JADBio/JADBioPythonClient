@@ -542,7 +542,7 @@ class JadbioClient(object):
     def analyze_dataset_check(self, dataset_id: str, name: str, outcome: dict, thoroughness: str = 'preliminary',
                               core_count: int = 1, grouping_feat: str = None, models_considered: str = 'all',
                               feature_selection: str = 'mostRelevant', max_signature_size=None,
-                              max_visualized_signature_count=None, extra_models: list = None):
+                              max_visualized_signature_count=None):
         """
         Check for possible errors and warnings, if an analysis is run on a specified dataset.
 
@@ -578,10 +578,6 @@ class JadbioClient(object):
         :param int max_visualized_signature_count: The maximum number of signatures that will be prepared for
             visualization in the user interface. When present, it must be a positive integer.
             When not present, a default value of 5 is used.
-        :param list extra_models: specifies additional models along with their hyperparameters, to be run in the current
-            analysis (optional).
-            Input in the form: {'name': 'an algorithm name',
-                'parameters':{'paramName1': paramValue1,'paramName2': paramValue2, ...}}[]
         :return: {errors?: [string], warnings?: [string], suggestions?: [string]}
         :rtype: dict
         :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
@@ -598,22 +594,83 @@ class JadbioClient(object):
         }
         """
 
-        if extra_models is None:
-            pth = ANALYZE_DATASET_CHECK_PATH
-        else:
-            pth = ANALYZE_DATASET_EXTRA_MODELS_CHECK_PATH
+        ret = self.__analyze_dataset__(dataset_id, name, outcome, thoroughness, core_count, grouping_feat,
+                                       models_considered, feature_selection, max_signature_size,
+                                       max_visualized_signature_count,
+                                       None, ANALYZE_DATASET_CHECK_PATH)
+
+        return JadbioClient.__parse_response__(ret, 'Analyze dataset check')
+
+    def analyze_dataset_extra_models_check(self, dataset_id: str, name: str, outcome: dict, extra_models: list,
+                              thoroughness: str = 'preliminary', core_count: int = 1, grouping_feat: str = None,
+                              models_considered: str = 'all', feature_selection: str = 'mostRelevant',
+                              max_signature_size=None, max_visualized_signature_count=None):
+        """
+        Check for possible errors and warnings, if an analysis is run on a specified dataset.
+
+        :param str dataset_id: Identity of a dataset attached to a project to which the user has execute permissions.
+        :param str name: Provides the analysis with a human-readable name for future reference. The name can be at most
+            120 characters long.
+        :param dict outcome: dictionary. Specifies both the type of analysis intended, and the dataset feature or
+            features that  are to be predicted.
+
+            Regression analysis: outcome = {'regression': 'target_variable_name'}
+
+            Classification analysis: outcome = {'classification': 'target_variable_name'}
+
+            Survival analysis: outcome = {'survival': {
+                                                        'event': 'event_variable_name',
+                                                        'timeToEvent': 'time_to_event_variable_name'
+                                                        }}
+        :param list extra_models: specifies additional models along with their hyperparameters, to be run in the current
+            analysis.
+            Input in the form: {'name': 'an algorithm name',
+                'parameters':{'paramName1': paramValue1,'paramName2': paramValue2, ...}}[]
+        :param str grouping_feat: Specifies an Identifier feature that groups samples which must not be split across
+            training and test datasets during analysis, e.g. because they are repeated measurements from the same
+            patient (optional).
+        :param str models_considered:  must be either 'interpretable' or 'all' This parameter controls the types of
+            model considered during the search for the best one. Interpretable models include only models that are easy
+            to interpret such as linear models and decision trees.
+        :param str feature_selection: must be either 'mostRelevant' or 'mostRelevantOrAll' (optional).
+        :param str thoroughness:  must be one of 'preliminary', 'typical', or extensive. This parameter is used to
+            reduce or expand the number of analysis configurations attempted in the search for the best ones;
+            it significantly affects the running time of the analysis.
+        :param int core_count: Positive integer. It specifies the number of compute cores to use during the analysis,
+            and must be at most the number of cores currently available to the user.
+        :param int max_signature_size: The maximum number of features used in a model found by the analysis.
+            When present, it must be a positive integer. When not present, a default value of 25 is used.
+        :param int max_visualized_signature_count: The maximum number of signatures that will be prepared for
+            visualization in the user interface. When present, it must be a positive integer.
+            When not present, a default value of 5 is used.
+        :return: {errors?: [string], warnings?: [string], suggestions?: [string]}
+        :rtype: dict
+        :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
+
+        :Example:
+
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
+        >>> knn = [{'name': 'KNeighborsClassifier', 'parameters': {'n_neighbors': 5}}]
+        >>> client.analyze_dataset_extra_models_check('2310', 'file_classification',
+        ...    {'classification': 'target'})
+        {
+            "errors": ["SubscriptionDoesNotSupportExtensiveAnalysis",
+                "CoreCountLimitExceeded"],
+            "warnings: ["TooFewSamplesPerClassForAnalysis"]
+        }
+        """
 
         ret = self.__analyze_dataset__(dataset_id, name, outcome, thoroughness, core_count, grouping_feat,
                                        models_considered, feature_selection, max_signature_size,
                                        max_visualized_signature_count,
-                                       extra_models, pth)
+                                       extra_models, ANALYZE_DATASET_EXTRA_MODELS_CHECK_PATH)
 
         return JadbioClient.__parse_response__(ret, 'Analyze dataset check')
 
     def analyze_dataset(self, dataset_id: str, name: str, outcome: dict, thoroughness: str = 'preliminary',
                         core_count: int = 1, grouping_feat: str = None, models_considered: str = 'all',
                         feature_selection: str = 'mostRelevant', max_signature_size=None,
-                        max_visualized_signature_count=None, extra_models: list = None):
+                        max_visualized_signature_count=None):
         """
         Initiate an analysis of a specified dataset.
 
@@ -649,10 +706,6 @@ class JadbioClient(object):
         :param int max_visualized_signature_count: The maximum number of signatures that will be prepared for
             visualization in the user interface. When present, it must be a positive integer.
             When not present, a default value of 5 is used.
-        :param list extra_models: specifies extra models along with their hyperparameters, to be run in the current
-            analysis (optional).
-            Input in the form: {'name': 'an algorithm name',
-                'parameters':{'paramName1': paramValue1,'paramName2': paramValue2, ...}}[]
         :return: analysis_id
         :rtype: str
         :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
@@ -665,13 +718,69 @@ class JadbioClient(object):
         '5219'
         """
 
-        if extra_models is None:
-            pth = ANALYZE_DATASET_PATH
-        else:
-            pth = ANALYZE_DATASET_EXTRA_MODELS_PATH
         ret = self.__analyze_dataset__(dataset_id, name, outcome, thoroughness, core_count, grouping_feat,
                             models_considered, feature_selection, max_signature_size, max_visualized_signature_count,
-                            extra_models, pth)
+                            None, ANALYZE_DATASET_PATH)
+        return str(JadbioClient.__parse_response__(ret, 'Analyze dataset')['analysisId'])
+
+    def analyze_dataset_extra_models(self, dataset_id: str, name: str, outcome: dict, extra_models: list,
+                        thoroughness: str = 'preliminary', core_count: int = 1, grouping_feat: str = None,
+                        models_considered: str = 'all', feature_selection: str = 'mostRelevant', max_signature_size=None,
+                        max_visualized_signature_count=None):
+        """
+        Initiate an analysis of a specified dataset.
+
+        :param str dataset_id: Identity of a dataset attached to a project to which the user has execute permissions.
+        :param str name: Provides the analysis with a human-readable name for future reference. The name can be at most
+            120 characters long.
+        :param dict outcome: dictionary. Specifies both the type of analysis intended, and the dataset feature or
+            features that  are to be predicted.
+
+            Regression analysis: outcome = {'regression': 'target_variable_name'}
+
+            Classification analysis: outcome = {'classification': 'target_variable_name'}
+
+            Survival analysis: outcome = {'survival': {
+                                                        'event': 'event_variable_name',
+                                                        'timeToEvent': 'time_to_event_variable_name'
+                                                        }}
+        :param list extra_models: specifies extra models along with their hyperparameters, to be run in the current
+            analysis.
+            Input in the form: {'name': 'an algorithm name',
+                'parameters':{'paramName1': paramValue1,'paramName2': paramValue2, ...}}[]
+        :param str grouping_feat: Specifies an Identifier feature that groups samples which must not be split across
+            training and test datasets during analysis, e.g. because they are repeated measurements from the same
+            patient (optional).
+        :param str models_considered:  must be either 'interpretable' or 'all' This parameter controls the types of
+            model considered during the search for the best one. Interpretable models include only models that are easy
+            to interpret such as linear models and decision trees.
+        :param str feature_selection: must be either 'mostRelevant' or 'mostRelevantOrAll' (optional).
+        :param str thoroughness:  must be one of 'preliminary', 'typical', or extensive. This parameter is used to
+            reduce or expand the number of analysis configurations attempted in the search for the best ones;
+            it significantly affects the running time of the analysis.
+        :param int core_count: Positive integer. It specifies the number of compute cores to use during the analysis,
+            and must be at most the number of cores currently available to the user.
+        :param int max_signature_size: The maximum number of features used in a model found by the analysis.
+            When present, it must be a positive integer. When not present, a default value of 25 is used.
+        :param int max_visualized_signature_count: The maximum number of signatures that will be prepared for
+            visualization in the user interface. When present, it must be a positive integer.
+            When not present, a default value of 5 is used.
+        :return: analysis_id
+        :rtype: str
+        :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
+
+        :Example:
+
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
+        >>> knn = [{'name': 'KNeighborsClassifier', 'parameters': {'n_neighbors': 5}}]
+        >>> client.analyze_dataset_extra_models('6067', 'file_classification',
+        ...    {'classification': 'variable1'}, extra_models=knn)
+        '5219'
+        """
+
+        ret = self.__analyze_dataset__(dataset_id, name, outcome, thoroughness, core_count, grouping_feat,
+                            models_considered, feature_selection, max_signature_size, max_visualized_signature_count,
+                            extra_models, ANALYZE_DATASET_EXTRA_MODELS_PATH)
         return str(JadbioClient.__parse_response__(ret, 'Analyze dataset')['analysisId'])
 
     def get_extra_models_description(self, outcome_type: str):
