@@ -57,8 +57,8 @@ class JadbioClient(object):
         >>> client = JadbioClient('juser@gmail.com', 'a password')
         """
 
-        host = 'https://jadapi.jadbio.com/' if host is None else host
-        self.__base_url = host + 'api/public/{}/'.format(API_VERSION)
+        host = 'https://jadapi.jadbio.com' if host is None else host
+        self.__base_url = host + '/api/public/{}/'.format(API_VERSION)
         self.__session = None
         self.login(username, password)
 
