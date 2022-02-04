@@ -1,7 +1,8 @@
 import time
 
+
 # helper function for example
-def upload_dataset(client, pth, name, pid, has_snames=True, timeout=10*60):
+def upload_dataset(client, pth, name, pid, has_snames=True, timeout=10 * 60):
     """
     # Uploads (as is) and creates dataset synchronously from file path
     :param client: A client instance
@@ -16,9 +17,13 @@ def upload_dataset(client, pth, name, pid, has_snames=True, timeout=10*60):
     # Uploads (as is) and creates dataset synchronously from file path
     file_id = 2310
     file_id = client.upload_file(file_id, pth)
-    with open(pth,'r') as f:
+    with open(pth, 'r') as f:
         fsz = len(f.read())
-    tid = client.create_dataset(name, pid, file_id, fsz, has_sample_headers=has_snames)
+    tid = client.create_dataset(name,
+                                pid,
+                                file_id,
+                                fsz,
+                                has_sample_headers=has_snames)
     print("Uploaded dataset with tid: " + str(tid))
     status = client.get_task_status(tid)
     start = time.time()

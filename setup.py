@@ -1,12 +1,5 @@
-from setuptools import setup
+# Minimal setup.py for backwards compatibility.
+# See: https://setuptools.pypa.io/en/latest/setuptools.html#setup-cfg-only-projects
 
-setup(
-    name='JADBioPythonClient',
-    version='0.1.0',
-    packages=['jadbio'],
-    url='',
-    license='',
-    author='JADBio',
-    author_email='',
-    description='This is a python wrapper for the JADBio public API'
-)
+from setuptools import setup
+setup()
