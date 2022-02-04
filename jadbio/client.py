@@ -1,4 +1,5 @@
 import json
+import ntpath
 
 import requests
 from requests import Session
@@ -1479,7 +1480,9 @@ class JadbioClient(object):
     def image_upload_add_sample(self, task_id: str, sample: str, path: str):
         url = self.__base_url + 'image/{}/add'.format(task_id)
 
-        fname = path.split('/')[-1]
+        # Platform-independent method to get path (see https://stackoverflow.com/a/8384788)
+        head, tail = ntpath.split(path)
+        fname = tail or ntpath.basename(head)
         encoded_data = MultipartEncoder(
             fields={
                 'sampleId': sample,
