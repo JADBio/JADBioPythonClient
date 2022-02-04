@@ -40,6 +40,6 @@ To view the docs, open *docs/build/html/index.html*.
 You can experiment with the client running the example python code in the *src/examples/* folder and using the example 
 datasets provided in the *src/examples/resources/* folder.
 
-## Questions & Feedback
+## Contact
 
 Contact us at *support@jadbio.com* for any questions or feedback.
