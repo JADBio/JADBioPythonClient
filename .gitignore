@@ -3,4 +3,8 @@
 
 # Build
 __pycache__/
+build/
 docs/build/
+venv/
+dist/
+*.egg-info/
