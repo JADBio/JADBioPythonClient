@@ -6,6 +6,7 @@
 
 <p align="center">
     <a href="https://jadbio.com">Homepage</a> |
+    <a href="https://pythonclient.docs.jadbio.com/">Python Client Docs</a> |
     <a href="https://support.jadbio.com/api/getting-started/general-approach/">REST API Docs</a>
 </p>
 
@@ -21,19 +22,31 @@ idempotent.
 
 ## Installation
 
-Install the package locally from source:
+### From source
+
+The repository is organized as follows:
+
+- ``main`` contains the latest released version.
+- ``dev`` contains the latest version of the package, and might contain unreleased changes.
+
+You can install the package locally from source and generate documentation as follows:
 
 ```bash
 pip install .
-```
-
-Generate documentation using Sphinx:
-
-```bash
 sphinx-build -M html docs/src docs/build
 ```
 
 To view the docs, open *docs/build/html/index.html*.
+
+### From PyPI
+
+The package is also available on PyPI and can be installed as follows:
+
+```bash
+pip install jadbio
+```
+
+Documentation can be found [here](https://pythonclient.docs.jadbio.com/).
 
 ## Examples
 
@@ -43,6 +56,3 @@ datasets provided in the *src/examples/resources/* folder.
 ## Contact
 
 Contact us at *support@jadbio.com* for any questions or feedback.
-
-## Test for pull request
-
