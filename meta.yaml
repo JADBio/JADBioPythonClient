@@ -1,0 +1,33 @@
+# Configuration file for conda.
+
+# VERSION_PLACEHOLDER should be of the form major.minor.micro
+{% set version = "VERSION_PLACEHOLDER" %}
+
+package:
+  name: jadbio
+  version: "{{ version }}"
+
+source:
+  git_url: https://github.com/JADBio/JADBioPythonClient.git
+  git_rev: "v{{ version }}"
+  git_depth: 1
+  
+build:
+  number: 0
+  script: "{{ PYTHON }} -m pip install ."
+
+requirements:
+  host:
+    - pip
+    - python
+  run:
+    - python
+
+about:
+  home: https://jadbio.com
+  license: "GNU General Public v3 (GPLv3)"
+  license_family: GPL3
+  license_file: LICENSE
+  summary: "A python wrapper for the public JADBio REST API."
+  doc_url: "https://support.jadbio.com/docs/pythonapi/{{ version }}"
+  dev_url: "https://github.com/JADBio/JADBioPythonClient"
