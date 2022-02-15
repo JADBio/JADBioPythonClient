@@ -24,16 +24,14 @@ idempotent.
 
 ### From source
 
-The repository is organized as follows:
-
-- ``main`` contains the latest release
-- ``dev`` contains the latest version of the package, and might contain unreleased changes
-
 You can install the package locally from source as follows:
 
 ```bash
 pip install .
 ```
+
+> **Note**: This repository contains possibly unreleased updates, which are subject to change. To install a released
+> version either install from a specific tag locally, or install it directly from PyPI (see below).
 
 #### Documentation
 
