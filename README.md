@@ -6,7 +6,8 @@
 
 <p align="center">
     <a href="https://jadbio.com">Homepage</a> |
-    <a href="https://support.jadbio.com/api/getting-started/general-approach/">REST API Docs</a>
+    <a href="https://support.jadbio.com/docs/pythonapi/latest">Python Client Docs</a> |
+    <a href="https://support.jadbio.com/api/getting-started/general-approach">REST API Docs</a>
 </p>
 
 ***
@@ -21,24 +22,49 @@ idempotent.
 
 ## Installation
 
-Install the package locally from source:
+### From source
+
+The repository is organized as follows:
+
+- ``main`` contains the latest release
+- ``dev`` contains the latest version of the package, and might contain unreleased changes
+
+You can install the package locally from source as follows:
 
 ```bash
 pip install .
 ```
 
-Generate documentation using Sphinx:
+#### Documentation
+
+You can generate documentation using Sphinx as follows:
 
 ```bash
+# Install Sphinx if necessary
+pip install -U Sphinx
+
+# Generate documentation
 sphinx-build -M html docs/src docs/build
 ```
 
 To view the docs, open *docs/build/html/index.html*.
 
+### From PyPI
+
+The package is also available on [PyPI](https://pypi.org/project/jadbio/) and can be installed as follows:
+
+```bash
+pip install jadbio
+```
+
+#### Documentation
+- latest release: https://support.jadbio.com/docs/pythonapi/latest
+- version ``x.y.z``: https://support.jadbio.com/docs/pythonapi/x.y.z
+
 ## Examples
 
 You can experiment with the client running the example python code in the *src/examples/* folder and using the example 
-datasets provided in the *src/examples/resources/* folder.
+datasets provided in the *src/examples/resources* folder.
 
 ## Contact
 

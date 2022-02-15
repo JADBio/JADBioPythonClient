@@ -3,7 +3,17 @@
 
 from setuptools import setup
 
+# Read the version number
+jadbio_globals = {}
+with open('jadbio/__init__.py') as f:
+    exec(f.read(), jadbio_globals)
+
 setup(
+    project_urls={
+        "Homepage": "https://jadbio.com",
+        "Documentation": "https://support.jadbio.com/docs/pythonapi/" + jadbio_globals['__version__'],
+        "Source code": "https://github.com/JADBio/JADBioPythonClient",
+    },
     # Description for pypi
     long_description="""
     JADBio's purpose-built AutoML platform provides leading-edge AI tools and automation capabilities enabling life-science professionals to build and deploy accurate and interpretable predictive models with speed and ease, even if they have no data science expertise.
