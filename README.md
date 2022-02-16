@@ -24,7 +24,7 @@ idempotent.
 
 ### From source
 
-You can install the package locally from source as follows:
+Install the package locally from source:
 
 ```bash
 pip install .
@@ -35,7 +35,7 @@ pip install .
 
 #### Documentation
 
-You can generate documentation using Sphinx as follows:
+Generate documentation using Sphinx:
 
 ```bash
 # Install Sphinx if necessary
@@ -49,10 +49,18 @@ To view the docs, open *docs/build/html/index.html*.
 
 ### From PyPI
 
-The package is also available on [PyPI](https://pypi.org/project/jadbio/) and can be installed as follows:
+Install the package from [PyPI](https://pypi.org/project/jadbio/):
 
 ```bash
 pip install jadbio
+```
+
+### From Anaconda
+
+Install the package from [Anaconda](https://anaconda.org/JADBio/jadbio):
+
+```bash
+conda install -c jadbio jadbio
 ```
 
 #### Documentation
