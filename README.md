@@ -6,7 +6,7 @@
 
 <p align="center">
     <a href="https://jadbio.com">Homepage</a> |
-    <a href="https://support.jadbio.com/docs/pythonapi/latest">Python Client Docs</a> |
+    <a href="https://support.jadbio.com/pythonclient/latest">Python Client Docs</a> |
     <a href="https://support.jadbio.com/api/getting-started/general-approach">REST API Docs</a>
 </p>
 
@@ -64,8 +64,8 @@ conda install -c jadbio jadbio
 ```
 
 #### Documentation
-- latest release: https://support.jadbio.com/docs/pythonapi/latest
-- version ``x.y.z``: https://support.jadbio.com/docs/pythonapi/x.y.z
+
+Documentation for all releases is available [here](https://support.jadbio.com/pythonclient/).
 
 ## Examples
 
