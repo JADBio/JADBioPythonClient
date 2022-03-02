@@ -332,10 +332,11 @@ class JadbioClient(object):
 
     def attach_dataset(self, name: str, project_id: str, dataset_id: str):
         """
+        Attach a dataset from another project, to a destination project.
 
         :param str name: Used to name the new dataset. It must have at least 3 and at most 60 characters and must
             be unique within the target project.
-        :param str project_id: The destination project were the specified dataset will be attached to. The user should
+        :param str project_id: The destination project where the specified dataset will be attached to. The user should
             have read and write permissions for that project.
         :param str dataset_id:  Identifies the source dataset. It must belong to a project to which the user has read
             permissions.

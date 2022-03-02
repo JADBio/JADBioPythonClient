@@ -13,6 +13,7 @@ Documentation
     delete_project,
     upload_file,
     create_dataset,
+    attach_dataset,
     get_dataset,
     get_datasets,
     delete_dataset,
