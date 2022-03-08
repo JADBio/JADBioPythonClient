@@ -322,13 +322,40 @@ class JadbioClient(object):
 
         >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> client.get_dataset('6065')
-        {'taskId': '689', 'state': 'finished', 'datasetIds': ['6065'],
-                                                        'datasetId': '6065'}
+        {'projectId': '462', 'datasetId': '6075', 'name': 'datasetName',
+                    'sampleCount': 150, 'featureCount': 6, 'sizeInBytes': 4507}
         """
 
         url = self.__base_url + 'dataset/{}'.format(dataset_id)
         ret = self.__session.get(url, headers=self.__token)
         return JadbioClient.__parse_response__(ret, 'Get dataset')
+
+    def attach_dataset(self, name: str, project_id: str, dataset_id: str):
+        """
+        Attach a dataset from another project, to a destination project.
+
+        :param str name: Used to name the new dataset. It must have at least 3 and at most 60 characters and must
+            be unique within the target project.
+        :param str project_id: The destination project where the specified dataset will be attached to. The user should
+            have read and write permissions for that project.
+        :param str dataset_id:  Identifies the source dataset. It must belong to a project to which the user has read
+            permissions.
+        :return: {datasetId: string, projectId: string, name: string, description?: string, sampleCount: number,
+            featureCount: number, sizeInBytes: number}
+        :rtype: dict
+        :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
+
+        :Example:
+
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
+        >>> client.attach_dataset('name_of_attached_dataset', '462','6065')
+        {'projectId': '462', 'datasetId': '6065', 'name': 'a new name',
+                    'sampleCount': 150, 'featureCount': 6, 'sizeInBytes': 4507}
+        """
+
+        url = self.__base_url + 'dataset/{}/attachToProject/{}'.format(dataset_id, project_id)
+        ret = self.__session.post(url, data=name, headers=self.__token)
+        return JadbioClient.__parse_response__(ret, 'Attach dataset')
 
     def get_datasets(self, project_id: str, offset: int = 0, count: int = 10):
         """
