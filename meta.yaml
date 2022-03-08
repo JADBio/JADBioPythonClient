@@ -29,5 +29,9 @@ about:
   license_family: GPL3
   license_file: LICENSE
   summary: "A python wrapper for the public JADBio REST API."
+  description: |
+    JADBio's purpose-built AutoML platform provides leading-edge AI tools and automation capabilities enabling life-science professionals to build and deploy accurate and interpretable predictive models with speed and ease, even if they have no data science expertise.
+    
+    This client provides the major JADBio functionality to python users using API calls. Requests are HTTP GET and POST only. POST requests are used for any kind of resource creation, mutation, or deletion. GET requests are read-only and idempotent.
   doc_url: "https://support.jadbio.com/pythonclient/{{ version }}"
   dev_url: "https://github.com/JADBio/JADBioPythonClient"
