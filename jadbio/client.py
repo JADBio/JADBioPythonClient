@@ -778,7 +778,7 @@ class JadbioClient(object):
         '5219'
         """
 
-        url = self.__base_url + 'dataset/{}/analyze/with/extra/models'.format(
+        url = self.__base_url + 'dataset/{}/extra/analyze'.format(
             dataset_id)
         ret = self.__analyze_dataset__(name, outcome, thoroughness, core_count,
                                        grouping_feat, models_considered,
@@ -866,7 +866,7 @@ class JadbioClient(object):
         }
         """
 
-        url = self.__base_url + 'dataset/{}/check/analyze/with/extra/models'.format(
+        url = self.__base_url + 'dataset/{}/check/extra/analyze'.format(
             dataset_id)
         ret = self.__analyze_dataset__(name, outcome, thoroughness, core_count,
                                        grouping_feat, models_considered,
