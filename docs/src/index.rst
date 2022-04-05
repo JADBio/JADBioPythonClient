@@ -25,6 +25,7 @@ Documentation
     analyze_dataset_extra_models,
     analyze_dataset_extra_models_check,
     get_extra_models_description,
+    get_extra_fs_description,
     get_analysis,
     get_analyses,
     get_analysis_status,
