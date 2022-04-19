@@ -628,7 +628,7 @@ class JadbioClient(object):
         ret = self.__analyze_dataset__(name, outcome, thoroughness, core_count,
                                        grouping_feat, models_considered,
                                        feature_selection, max_signature_size,
-                                       max_visualized_signature_count, None,
+                                       max_visualized_signature_count, None, None,
                                        url)
         return str(
             JadbioClient.__parse_response__(ret,
@@ -700,7 +700,7 @@ class JadbioClient(object):
         ret = self.__analyze_dataset__(name, outcome, thoroughness, core_count,
                                        grouping_feat, models_considered,
                                        feature_selection, max_signature_size,
-                                       max_visualized_signature_count, None,
+                                       max_visualized_signature_count, None, None,
                                        url)
 
         return JadbioClient.__parse_response__(ret, 'Analyze dataset check')
@@ -709,7 +709,8 @@ class JadbioClient(object):
                                      dataset_id: str,
                                      name: str,
                                      outcome: dict,
-                                     extra_models: list,
+                                     extra_models: list = None,
+                                     extra_feature_selectors: list = None,
                                      thoroughness: str = 'preliminary',
                                      core_count: int = 1,
                                      grouping_feat: str = None,
@@ -744,6 +745,19 @@ class JadbioClient(object):
                     'name': 'an algorithm name',
                     'parameters': {
                         'paramName1': paramValue1, 
+                        'paramName2': paramValue2,
+                        ...
+                    }
+                }[]
+        :param list extra_feature_selectors: specifies extra featureSelectors along with their hyperparameters,
+            to be run in the current analysis. Input in the form:
+
+            .. code-block:: python
+
+                {
+                    'name': 'an algorithm name',
+                    'parameters': {
+                        'paramName1': paramValue1,
                         'paramName2': paramValue2,
                         ...
                     }
@@ -784,7 +798,7 @@ class JadbioClient(object):
                                        grouping_feat, models_considered,
                                        feature_selection, max_signature_size,
                                        max_visualized_signature_count,
-                                       extra_models, url)
+                                       extra_models, extra_feature_selectors, url)
         return str(
             JadbioClient.__parse_response__(ret,
                                             'Analyze dataset')['analysisId'])
@@ -794,7 +808,8 @@ class JadbioClient(object):
             dataset_id: str,
             name: str,
             outcome: dict,
-            extra_models: list,
+            extra_models: list = None,
+            extra_feature_selectors: list = None,
             thoroughness: str = 'preliminary',
             core_count: int = 1,
             grouping_feat: str = None,
@@ -828,6 +843,19 @@ class JadbioClient(object):
                     'name': 'an algorithm name',
                     'parameters': {
                         'paramName1': paramValue1, 
+                        'paramName2': paramValue2,
+                        ...
+                    }
+                }[]
+        :param list extra_feature_selectors: specifies extra featureSelectors along with their hyperparameters,
+            to be run in the current analysis. Input in the form:
+
+            .. code-block:: python
+
+                {
+                    'name': 'an algorithm name',
+                    'parameters': {
+                        'paramName1': paramValue1,
                         'paramName2': paramValue2,
                         ...
                     }
@@ -872,7 +900,7 @@ class JadbioClient(object):
                                        grouping_feat, models_considered,
                                        feature_selection, max_signature_size,
                                        max_visualized_signature_count,
-                                       extra_models, url)
+                                       extra_models, extra_feature_selectors, url)
 
         return JadbioClient.__parse_response__(ret, 'Analyze dataset check')
 
@@ -907,6 +935,38 @@ class JadbioClient(object):
         ret = self.__session.get(url, headers=self.__token)
         return JadbioClient.__parse_response__(
             ret, 'Get Extra Models')['extraModels']
+
+    def get_extra_fs_description(self, outcome_type: str):
+        """
+        Retrieves descriptions for extra available feature selectors that can be explicitly added to an analysis.
+        These feature selectors can be added to be trained in the analysis on top of the algorithms that JADBio selects using its AI system.
+
+        :param str outcome_type: must be either 'regression, 'classification', or 'survival'. This parameter specifies
+            the type of extra fs to be retrieved.
+        :return: {name: string, description: string, type: string, parameters: object[]}[]
+        :rtype: list
+        :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
+
+        :Example:
+
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
+        >>> client.get_extra_models_description('classification')
+        [
+            {'name': alg1Name,'description': alg1description,'type':alg1type,
+                'parameters':[{'name': param1,'description':param1descr,
+                        'type': ['int'], 'defaultValue': 5,
+                        'possibleValues':[{'min':minVal,'max':maxVal},...]},
+                        ...
+                        ]
+            },
+            ...
+        ]
+        """
+
+        url = self.__base_url + 'analysis/extra/{}/featureSelectors'.format(outcome_type)
+        ret = self.__session.get(url, headers=self.__token)
+        return JadbioClient.__parse_response__(
+            ret, 'Get Extra FS')['extraFeatureSelectors']
 
     def get_analysis(self, analysis_id: str):
         """
@@ -1532,7 +1592,7 @@ class JadbioClient(object):
     def __analyze_dataset__(self, name, outcome, thoroughness, core_count,
                             grouping_feat, models_considered,
                             feature_selection, max_signature_size,
-                            max_visualized_signature_count, extra_models, url):
+                            max_visualized_signature_count, extra_models, extra_fs, url):
 
         analyze_dataset_request = {
             'outcome': outcome,
@@ -1550,16 +1610,16 @@ class JadbioClient(object):
         if grouping_feat is not None:
             analyze_dataset_request['groupingFeature'] = grouping_feat
         if extra_models is not None:
-            analyze_dataset_request[
-                'extraModels'] = JadbioClient.__extra_models_to_json__(
-                    extra_models)
+            analyze_dataset_request['extraModels'] = JadbioClient.__extra_algs_to_json__(extra_models)
+        if extra_fs is not None:
+            analyze_dataset_request['extraFeatureSelectors'] = JadbioClient.__extra_algs_to_json__(extra_fs)
 
         return self.__session.post(url,
                                    json=analyze_dataset_request,
                                    headers=self.__token)
 
     @staticmethod
-    def __extra_models_to_json__(extra_models):
+    def __extra_algs_to_json__(extra_models):
         extra_models_json = list()
         for model in extra_models:
             parameters = list()
