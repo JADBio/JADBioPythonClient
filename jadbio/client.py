@@ -942,7 +942,7 @@ class JadbioClient(object):
         These feature selectors can be added to be trained in the analysis on top of the algorithms that JADBio selects using its AI system.
 
         :param str outcome_type: must be either 'regression, 'classification', or 'survival'. This parameter specifies
-            the type of extra models to be retrieved.
+            the type of extra fs to be retrieved.
         :return: {name: string, description: string, type: string, parameters: object[]}[]
         :rtype: list
         :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
