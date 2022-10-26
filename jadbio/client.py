@@ -1145,6 +1145,10 @@ class JadbioClient(object):
             'startTime': '2021-02-26T11:04:15Z', 'executionTimeInSeconds': 10}
         """
 
+        url = self.__base_url + 'analysis/{}/result'.format(analysis_id)
+        ret = self.__session.get(url, headers=self.__token)
+        return JadbioClient.__parse_response__(ret, 'Get analysis result')
+
     def download_analysis_model_predictions(self, analysis_id: str, model_id: str):
         """
         Returns the predictions for the specified model of a finished analysis.
@@ -1162,6 +1166,10 @@ class JadbioClient(object):
         Sample name,Prob ( class = 0 ),Prob ( class = 1 ),Difficult to Predict,Label
         sample1,0.03963326220876844,0.9603667377912317,false,1
         """
+
+        url = self.__base_url + 'analysis/{}/model/{}/predictions'.format(analysis_id, model_id)
+        ret = self.__session.get(url, headers=self.__token)
+        return JadbioClient.__parse_response__(ret, 'Get analysis model predictions')
 
     def delete_analysis(self, analysis_id: str):
         """
