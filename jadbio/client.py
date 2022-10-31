@@ -1647,9 +1647,7 @@ class JadbioClient(object):
         if extra_fs is not None:
             analyze_dataset_request['extraFeatureSelectors'] = JadbioClient.__extra_algs_to_json__(extra_fs)
 
-        return self.__session.post(url,
-                                   json=analyze_dataset_request,
-                                   headers=self.__token)
+        return self.__session.post(url, json=analyze_dataset_request, headers=self.__token)
 
     @staticmethod
     def __extra_algs_to_json__(extra_models):
