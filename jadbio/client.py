@@ -1141,6 +1141,17 @@ class JadbioClient(object):
                     "performance": {
                       "Area Under the ROC Curve": 0.951428730938,
                     }},
+                    'modelView': {
+                        'coeffLabels': ['Class 0 vs  Class 1'],
+                         'coefficients': [
+                            [
+                                -1.8866120080326776,
+                                -2.4376029017925926,
+                                1.4961428212277295,
+                            ]
+                         ],
+                         'featureNames': ['Intercept','f1','f2']
+                    }
             },
             'startTime': '2021-02-26T11:04:15Z', 'executionTimeInSeconds': 10}
         """
