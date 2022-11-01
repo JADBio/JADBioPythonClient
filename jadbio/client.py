@@ -1212,6 +1212,17 @@ class JadbioClient(object):
                     "performance": {
                       "Area Under the ROC Curve": 0.951428730938,
                     }},
+                    'modelView': {
+                        'coeffLabels': ['Class 0 vs  Class 1'],
+                         'coefficients': [
+                            [
+                                -1.8866120080326776,
+                                -2.4376029017925926,
+                                1.4961428212277295,
+                            ]
+                         ],
+                         'featureNames': ['Intercept','f1','f2']
+                    }
             },
             'startTime': '2021-02-26T11:04:15Z', 'executionTimeInSeconds': 10}
         """
@@ -1219,6 +1230,28 @@ class JadbioClient(object):
         url = self.__base_url + 'analysis/{}/result'.format(analysis_id)
         ret = self.__session.get(url, headers=self.__token)
         return JadbioClient.__parse_response__(ret, 'Get analysis result')
+
+    def download_analysis_model_predictions(self, analysis_id: str, model_id: str):
+        """
+        Returns the predictions for the specified model of a finished analysis.
+
+        :param str analysis_id: Identifies the analysis.
+        :param str model_id: Identifies the model.
+        :return: {analysisId: string, parameters: object, mlEngine: string, startTime: timestamp,\
+            executionTimeInSeconds: number, models: { model_key1?: model1, model_key2?: model2}}
+        :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
+
+        :Example:
+
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
+        >>> client.download_analysis_model_predictions('5219', 'best')
+        Sample name,Prob ( class = 0 ),Prob ( class = 1 ),Difficult to Predict,Label
+        sample1,0.03963326220876844,0.9603667377912317,false,1
+        """
+
+        url = self.__base_url + 'analysis/{}/model/{}/predictions'.format(analysis_id, model_id)
+        ret = self.__session.get(url, headers=self.__token)
+        return JadbioClient.__parse_response__(ret, 'Get analysis model predictions')
 
     def delete_analysis(self, analysis_id: str):
         """
@@ -1685,9 +1718,7 @@ class JadbioClient(object):
         if extra_fs is not None:
             analyze_dataset_request['extraFeatureSelectors'] = JadbioClient.__extra_algs_to_json__(extra_fs)
 
-        return self.__session.post(url,
-                                   json=analyze_dataset_request,
-                                   headers=self.__token)
+        return self.__session.post(url, json=analyze_dataset_request, headers=self.__token)
 
 
     def __analyze_dataset_custom_preprocessing__(self, name, outcome, thoroughness, core_count,
