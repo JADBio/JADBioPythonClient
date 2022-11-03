@@ -644,8 +644,7 @@ class JadbioClient(object):
                         feature_selection: str = 'mostRelevant',
                         max_signature_size=None,
                         max_visualized_signature_count=None,
-                        function_type: str = None,
-                        function_script: str = None):
+                        custom_preprocessing: list[tuple[str, str]] = []):
         """
         Initiate an analysis of a specified dataset with custom preprocessing.
 
