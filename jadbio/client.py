@@ -4,6 +4,7 @@ import ntpath
 import requests
 from requests import Session
 from requests_toolbelt import MultipartEncoder
+from typing import List, Tuple
 
 API_VERSION = 'v1'
 
@@ -644,7 +645,7 @@ class JadbioClient(object):
                         feature_selection: str = 'mostRelevant',
                         max_signature_size=None,
                         max_visualized_signature_count=None,
-                        custom_preprocessing: list[tuple[str, str]] = []):
+                        custom_preprocessing: List[Tuple[str, str]] = []):
         """
         Initiate an analysis of a specified dataset with custom preprocessing.
 
