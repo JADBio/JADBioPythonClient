@@ -256,7 +256,6 @@ class JadbioClient(object):
         """
         Allows clients to upload files from S3.
         :param int file_id:
-        
             The file_id is an alpha-numeric identifier provided by the client. Reusing the file_id will
             overwrite the uploaded file. The file_id must be specified in subsequent requests to create a dataset from
             the raw uploaded file.
