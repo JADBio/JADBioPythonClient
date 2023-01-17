@@ -229,8 +229,8 @@ class JadbioClient(object):
 
         :param int file_id:
 
-            The fileId is an alpha-numeric identifier provided by the client. Reusing the fileId will
-            overwrite the uploaded file. The fileId must be specified in subsequent requests to create a dataset from
+            The file_id is an alpha-numeric identifier provided by the client. Reusing the file_id will
+            overwrite the uploaded file. The file_id must be specified in subsequent requests to create a dataset from
             the raw uploaded file. The file to upload is provided directly as the body of the request.
 
         :param str pth_to_file: path/to/file to be uploaded.
@@ -250,6 +250,41 @@ class JadbioClient(object):
 
             if ret.status_code != 200:
                 JadbioClient.__request_failed__(ret, 'Upload file')
+        return file_id
+
+    def upload_s3(self, file_id: int, link: str, region: str, access_key_id: str, access_key: str):
+        """
+        Allows clients to upload files from S3.
+        :param int file_id:
+
+            The file_id is an alpha-numeric identifier provided by the client. Reusing the file_id will
+            overwrite the uploaded file. The file_id must be specified in subsequent requests to create a dataset from
+            the raw uploaded file.
+        :param str link: The S3 link
+        :param str region: The AWS region
+        :param str access_key_id: The S3 client access key id
+        :param str access_key: The S3 client access key
+        :return: file_id
+        :rtype: int
+        :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
+
+        :Example:
+
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
+        >>> client.upload_s3(1234, "s3://bucket/key", "region", "access key id", "access key")
+        1234
+        """
+        url = self.__base_url + 'file/{}/uploadS3'.format(file_id)
+        request_data = {
+            'link': link,
+            'region': region,
+            'accessKeyId': access_key_id,
+            'accessKey': access_key
+        }
+        ret = self.__session.post(url, data= request_data, headers=self.__token)
+
+        if ret.status_code != 200:
+            JadbioClient.__request_failed__(ret, 'Upload file')
         return file_id
 
     def create_dataset(self,
