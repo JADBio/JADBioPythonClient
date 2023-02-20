@@ -1268,7 +1268,7 @@ class JadbioClient(object):
 
     def download_analysis_model_predictions(self, analysis_id: str, model_id: str):
         """
-        Returns the predictions for the specified model of a finished analysis.
+        Returns the out-of-sample predictions for the specified model of a finished analysis.
 
         :param str analysis_id: Identifies the analysis.
         :param str model_id: Identifies the model.
