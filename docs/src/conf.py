@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.abspath('../../jadbio/'))
 # Project information
 project = 'JADBio API Python Client'
 author = 'JADBio'
-copyright = '2022, JADBio'
+copyright = '2023, JADBio'
 release = __version__
 
 # Build configuration
