@@ -244,7 +244,7 @@ class JadbioClient(object):
         >>> client.upload_file(1234, "pth/to/file.csv")
         1234
         """
-        with open(pth_to_file, 'r') as f:
+        with open(pth_to_file, 'r', encoding='utf-8-sig') as f:
             url = self.__base_url + 'file/{}/upload'.format(file_id)
             ret = self.__session.post(url, data=f.read(), headers=self.__token)
 
@@ -1691,7 +1691,7 @@ class JadbioClient(object):
                     'description': description,
                     'hasFeatureHeaders': has_feature_names
                 }),
-                'file': ('target.csv', open(data_file, 'rb'), 'text/plain'),
+                'file': ('target.csv', open(data_file, 'rb', encoding='utf-8-sig'), 'text/plain'),
             })
         ret = requests.post(url,
                             data=encoded_data,
@@ -1712,7 +1712,7 @@ class JadbioClient(object):
         encoded_data = MultipartEncoder(
             fields={
                 'sampleId': sample,
-                'file': (fname, open(path, 'rb'), 'text/plain')
+                'file': (fname, open(path, 'rb', encoding='utf-8-sig'), 'text/plain')
             })
         ret = requests.post(url,
                             data=encoded_data,
