@@ -8,7 +8,6 @@ from typing import List, Tuple
 
 API_VERSION = 'v1'
 
-
 class RequestFailed(Exception):
     pass
 
