@@ -72,8 +72,7 @@ class JadbioClient(object):
 
     def get_version(self):
         """
-        Provides access to the full version number of the currently deployed API.
-        The major version number is always implied by the request URL.
+        Returns the full version number of the currently deployed API.
 
         :return: public api version
         :rtype: str
@@ -92,10 +91,9 @@ class JadbioClient(object):
 
     def get_jadbio_version(self):
         """
-        Provides access to the full version number of the currently deployed API.
-        The major version number is always implied by the request URL.
+        Returns the full version number of the currently deployed JADBio.
 
-        :return: public api version
+        :return: JADBio version
         :rtype: str
         :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
 
