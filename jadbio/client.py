@@ -91,6 +91,26 @@ class JadbioClient(object):
         ret = self.__session.get(url, headers=self.__token)
         return JadbioClient.__parse_response__(ret, 'Get Version')['version']
 
+    def get_jadbio_version(self):
+        """
+        Provides access to the full version number of the currently deployed API.
+        The major version number is always implied by the request URL.
+
+        :return: public api version
+        :rtype: str
+        :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
+
+        :Example:
+
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
+        >>> print(client.get_jadbio_version())
+        1.4.101
+        """
+
+        url = self.__base_url + 'version'
+        ret = self.__session.get(url, headers=self.__token)
+        return JadbioClient.__parse_response__(ret, 'Get Version')['jadbioVersion']
+
     def login(self, username: str, password: str):
         """
         Login user, and store credentials in current session (previous credentials if any, are overwritten).
