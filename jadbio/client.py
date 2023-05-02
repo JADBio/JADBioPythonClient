@@ -3,6 +3,8 @@ import ntpath
 
 import requests
 from requests import Session
+from requests.adapters import HTTPAdapter
+from urllib3 import Retry
 from requests_toolbelt import MultipartEncoder
 from typing import List, Tuple
 
@@ -124,6 +126,18 @@ class JadbioClient(object):
         """
 
         self.__session = Session()
+
+        # Enable retries to avoid common HTTP errors.
+        # The delay between retries is defined as: backoff_factor * [0s, 2s, 4s, 8s, 16s, ...].
+        #
+        # See https://stackoverflow.com/a/35504626 for more details.
+        adapter = HTTPAdapter(max_retries = Retry(
+            total = 5, 
+            backoff_factor = 0.2,
+            status_forcelist = [500, 502, 503, 504]
+        ))
+        self.__session.mount("http://", adapter)
+        self.__session.mount("https://", adapter)
 
         url = self.__base_url + 'login'
         loginRequest = {'usernameOrEmail': username, 'password': password}
