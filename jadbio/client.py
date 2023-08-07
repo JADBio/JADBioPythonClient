@@ -922,7 +922,7 @@ class JadbioClient(object):
 
         url = self.__base_url + 'dataset/{}/extra/analyze'.format(
             dataset_id)
-        ret = self.__analyze_dataset__(name, outcome, thoroughness, core_count,
+        ret = self.__analyze_dataset__(name, outcome, None, thoroughness, core_count,
                                        grouping_feat, models_considered,
                                        feature_selection, max_signature_size,
                                        max_visualized_signature_count,
