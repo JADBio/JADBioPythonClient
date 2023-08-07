@@ -3,6 +3,8 @@ import ntpath
 
 import requests
 from requests import Session
+from requests.adapters import HTTPAdapter
+from urllib3 import Retry
 from requests_toolbelt import MultipartEncoder
 from typing import List, Tuple
 
@@ -125,6 +127,18 @@ class JadbioClient(object):
 
         self.__session = Session()
 
+        # Enable retries to avoid common HTTP errors.
+        # The delay between retries is defined as: backoff_factor * [0s, 2s, 4s, 8s, 16s, ...].
+        #
+        # See https://stackoverflow.com/a/35504626 for more details.
+        adapter = HTTPAdapter(max_retries = Retry(
+            total = 5, 
+            backoff_factor = 0.2,
+            status_forcelist = [500, 502, 503, 504]
+        ))
+        self.__session.mount("http://", adapter)
+        self.__session.mount("https://", adapter)
+
         url = self.__base_url + 'login'
         loginRequest = {'usernameOrEmail': username, 'password': password}
         res = self.__session.post(url, json=loginRequest)
@@ -177,7 +191,7 @@ class JadbioClient(object):
         """
         Returns a project.
 
-        :param str project_id: identifies the project to which the user must have read access.
+        :param str project_id: The id of the project. The user must have read permissions to the project.
         :return: { projectId: string, name: string, description?: string }
         :rtype: dict
         :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
@@ -195,17 +209,15 @@ class JadbioClient(object):
 
     def get_projects(self, offset: int = 0, count: int = 10):
         """
-        Projects form an ordered list from which the request extracts the sublist starting at offset and containing at
-        most count elements.
+        Returns a sublist of projects of a user.
 
-        :param int offset: project list offset.
-        :param int count: max number of projects to get.
+        :param int offset: Project list offset. The first element starts at offset 0.
+        :param int count: Limit on the number of projects to return. No limit is applied if count is negative.
         :return: {offset: number, totalCount: number, data: [{ projectId: string, name: string, description?: string }]}
         :rtype: dict
         :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
 
-        The list uses zero-based indexing, meaning the first element is at offset 0.
-        Constraints: Both offset and count must be non-negative integers and count can be at most 100.
+        Constraints: Offset must be a non-negative integer.
 
         :Example:
 
@@ -224,7 +236,7 @@ class JadbioClient(object):
         Allows clients to delete a specified project.
         **Beware** This operation silently deletes all contained datasets, analyses and models used inside that project.
 
-        :param str project_id: Identifies the project. It must be owned by the user.
+        :param str project_id: The id of the project. It must be owned by the user.
         :return: { projectId: string, name: string, description?: string }
         :rtype: dict
         :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
@@ -319,7 +331,8 @@ class JadbioClient(object):
 
         :param str name: Name of the dataset (must have at least 3 and at most 60 characters and must be unique within
             the target project).
-        :param str project_id: Id of the project to which the dataset will be created.
+        :param str project_id: The id of the project. The dataset will be added to this project. 
+            The user must have write permissions to the project.
         :param int file_id: Id provided by the client when the file was uploaded.
         :param int file_size_in_bytes: must match the actual size of the uploaded file.
             (e.g. len(open("pth/to/file.csv",'r').read()))
@@ -389,8 +402,8 @@ class JadbioClient(object):
 
         :param str name: Used to name the new dataset. It must have at least 3 and at most 60 characters and must
             be unique within the target project.
-        :param str project_id: The destination project where the specified dataset will be attached to. The user should
-            have read and write permissions for that project.
+        :param str project_id: The id of the project. The dataset will be attached to this project. 
+            The user must have write permissions to the project.
         :param str dataset_id:  Identifies the source dataset. It must belong to a project to which the user has read
             permissions.
         :return: {datasetId: string, projectId: string, name: string, description?: string, sampleCount: number,
@@ -412,14 +425,11 @@ class JadbioClient(object):
 
     def get_datasets(self, project_id: str, offset: int = 0, count: int = 10):
         """
-        The projectId identifies the project to which the user must have read permissions.
-        Datasets form an ordered list from which the request extracts the sublist starting at offset and containing at
-        most count elements.
-        The list uses zero-based indexing, meaning the first element is at offset 0.
+        Returns a sublist of datasets contained in a project.
 
-        :param str project_id: Id of the project to get datasets from.
-        :param int offset: Start index.
-        :param int count: Number of datasets to retrieve.
+        :param str project_id: The id of the project. The user must have read permissions to the project.
+        :param int offset: Dataset list offset. The first element starts at offset 0.
+        :param int count: Limit on the number of datasets to analysis. No limit is applied if count is negative.
         :return: { projectId: string, offset: number, totalCount: number,\
             data: [{projectId: string,
                 datasetId: string,
@@ -431,8 +441,7 @@ class JadbioClient(object):
         :rtype: dict
         :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
 
-        The list uses zero-based indexing, meaning the first element is at offset 0.
-        Constraints: Both offset and count must be non-negative integers and count can be at most 100.
+        Constraints: Offset must be a non-negative integer.
 
         :Example:
 
@@ -1100,8 +1109,7 @@ class JadbioClient(object):
         """
         Returns an analysis.
 
-        :param str analysis_id: Identifies the analysis which must belong to a project to which the user must
-            have read access.
+        :param str analysis_id: The id of the analysis. The user must have read permissions to the corresponding project.
         :return: {analysisId: string, projectId: string, parameters: object, state: string}
         :rtype: dict
         :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
@@ -1133,20 +1141,17 @@ class JadbioClient(object):
 
     def get_analyses(self, project_id: str, offset: int = 0, count: int = 10):
         """
-        Returns a sublist of all analyses in a project.
+        Returns a sublist of analyses contained in a project.
 
-        :param str project_id: Identifies the project to which the user must have read permission.
-        :param int offset: Request extracts the sublist starting at offset.
-        :param int count: max number of analyses to get.
+        :param str project_id: The id of the project. The user must have read permissions to the project.
+        :param int offset: Analysis list offset. The first element starts at offset 0.
+        :param int count: Limit on the number of analyses to analysis. No limit is applied if count is negative.
         :return: {projectId: string, offset: number, totalCount: number, \
             data: [{analysisId: string, parameters: object, state: string}]}
         :rtype: dict
         :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
 
-        The list uses zero-based indexing, meaning the first element is at offset 0.
-        Constraints: Both offset and count must be non-negative integers and count can be at most 100.
-        The parameters object has the same fields as specified when each analysis was created,
-        including the dataset identifier and optional values.
+        Constraints: Offset must be a non-negative integer.
 
         :Example:
 
@@ -1177,8 +1182,7 @@ class JadbioClient(object):
         """
         Returns the status of an analysis.
 
-        :param str analysis_id: Identifies the analysis. It must belong to a project to which the user has read
-            permissions.
+        :param str analysis_id: The id of the analysis. The user must have read permissions to the corresponding project.
         :return: {analysisId: string, parameters: object, state: string, startTime?: timestamp, \
             executionTimeInSeconds?: number, progress?: number}
         :rtype: dict
@@ -1217,7 +1221,7 @@ class JadbioClient(object):
         """
         Returns the result of a finished analysis.
 
-        :param str analysis_id: Identifies the analysis.
+        :param str analysis_id: The id of the analysis. The user must have read permissions to the corresponding project.
         :return: {analysisId: string, parameters: object, mlEngine: string, startTime: timestamp,\
             executionTimeInSeconds: number, models: { model_key1?: model1, model_key2?: model2}}
         :rtype: dict
@@ -1292,7 +1296,7 @@ class JadbioClient(object):
         """
         Returns the out-of-sample predictions for the specified model of a finished analysis.
 
-        :param str analysis_id: Identifies the analysis.
+        :param str analysis_id: The id of the analysis. The user must have read permissions to the corresponding project.
         :param str model_id: Identifies the model.
         :return: {analysisId: string, parameters: object, mlEngine: string, startTime: timestamp,\
             executionTimeInSeconds: number, models: { model_key1?: model1, model_key2?: model2}}
@@ -1314,8 +1318,7 @@ class JadbioClient(object):
         """
         Allows clients to delete a specified analysis.
 
-        :param str analysis_id: Identifies the analysis. It must belong to a project to which the user has
-            write permissions.
+        :param str analysis_id: The id of the analysis. The user must have read permissions to the corresponding project.
         :return: {analysisId: string, parameters: object, state: string}
         :rtype: dict
         :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
@@ -1349,7 +1352,7 @@ class JadbioClient(object):
         """
         Retrieves the plot names of the computed plots for a given model in an analysis.
 
-        :param str analysis_id: Identifies the analysis.
+        :param str analysis_id: The id of the analysis. The user must have read permissions to the corresponding project.
         :param str model_key: A key present in analysis_result['models'] (e.g. 'best' or 'interpretable')
         :return: {analysisId: string, modelKey: string, plots: string[]}
         :rtype: dict
@@ -1375,7 +1378,7 @@ class JadbioClient(object):
         """
         Retrieves the raw values of a plot for a modelKey - analysis pair.
 
-        :param str analysis_id: Identifies the analysis.
+        :param str analysis_id: The id of the analysis. The user must have read permissions to the corresponding project.
         :param str model_key: A key present in analysis_result['models'] (e.g. 'best' or 'interpretable')
         :param str plot_key: A key present in available_plots['plots'] (e.g. 'Feature Importance')
         :return: {analysis_id: string, modelKey: string, plot: {plot_key: object}}
@@ -1413,7 +1416,7 @@ class JadbioClient(object):
         """
         Retrieves the raw values of all the available plots for a modelKey - analysis pair.
 
-        :param str analysis_id: Identifies the analysis.
+        :param str analysis_id: The id of the analysis. The user must have read permissions to the corresponding project.
         :param str model_key: A key present in analysis_result['models'] (e.g. 'best' or 'interpretable')
         :return: {analysis_id: string, model_key: string, plots: {plot_key: object}[]}
         :rtype: dict
@@ -1460,9 +1463,8 @@ class JadbioClient(object):
         (User must have read and execute permissions to the project that contains the analysis and the dataset to be
         predicted.)
 
-        :param str analysis_id: Identifies the analysis, must belong to the same project as the dataset_id.
-        :param str dataset_id: Identifies a dataset containing unlabeled data, must belong to the same project as
-            analysis_id.
+        :param str analysis_id: The id of the analysis. The user must have read permissions to the corresponding project
+        :param str dataset_id: The id of the dataset to predict. This must belong to the same project as the analysis.
         :param str model_key: A key present in analysis_result['models'] (e.g. 'best' or 'interpretable')
         :param int signature_index: zero-based index of the model signature to use for the predictions.
         :return: predictionId
@@ -1499,7 +1501,7 @@ class JadbioClient(object):
         (User must have read and execute permissions to the project that contains the analysis and the dataset to be
         predicted.)
 
-        :param str analysis_id: Identifies the analysis, must belong to the same project as the dataset_id.
+        :param str analysis_id: The id of the analysis. The user must have read permissions to the corresponding project
         :param str dataset_id: Identifies a dataset containing unlabeled data, must belong to the same project as
             analysis_id.
         :param str model_key: A key present in analysis_result['models'] (e.g. 'best' or 'interpretable')
@@ -1563,19 +1565,17 @@ class JadbioClient(object):
                         offset: int = 0,
                         count: int = 10):
         """
-        Returns a sublist of the predictions created using an analysis result.
+        Returns a sublist of the predictions from an analysis.
 
-        :param str analysis_id: Identifies the analysis which must belong to a project to which the user has
-            read permissions.
-        :param int offset: predictions list offset.
-        :param count: max number of predictions to get.
+        :param str analysis_id: The id of the analysis. The user must have read permissions to the corresponding project.
+        :param int offset: Predictions list offset. The first element starts at offset 0.
+        :param int count: Limit on the number of predictions to return. No limit is applied if count is negative.
         :return: {analysisId: string, offset: number, totalCount: number,
             data: [{predictionId: string, projectId: string, parameters: object, state: string}]}
         :rtype: dict
         :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
 
-        The list uses zero-based indexing, meaning the first element is at offset 0.
-        Constraints: Both offset and count must be non-negative integers and count can be at most 100.
+        Constraints: Offset must be a non-negative integer.
 
         :Example:
 
@@ -1688,7 +1688,7 @@ class JadbioClient(object):
                           has_feature_names: bool = True,
                           description: str = None):
         """
-        :param str project_id: project id
+        :param str project_id: The id of the project. The user must have write permissions to the project.
         :param str name: image name (should be unique per project)
         :param str data_path: csv file containing sample names, target, other features, if None it defaults to 'target.csv'
         :param bool has_feature_names:
