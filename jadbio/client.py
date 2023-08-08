@@ -632,7 +632,7 @@ class JadbioClient(object):
                         dataset_id: str,
                         name: str,
                         outcome: dict,
-                        model_selection_protocol: dict,
+                        model_selection_protocol: dict = None,
                         thoroughness: str = 'preliminary',
                         core_count: int = 1,
                         grouping_feat: str = None,
