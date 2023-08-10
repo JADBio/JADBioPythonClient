@@ -632,6 +632,7 @@ class JadbioClient(object):
                         dataset_id: str,
                         name: str,
                         outcome: dict,
+                        model_selection_protocol: dict = None,
                         thoroughness: str = 'preliminary',
                         core_count: int = 1,
                         grouping_feat: str = None,
@@ -656,7 +657,12 @@ class JadbioClient(object):
                                                         'event': 'event_variable_name',
                                                         'timeToEvent': 'time_to_event_variable_name'
                                                         }}
-
+        :param dict model_selection_protocol: dictionary. Specifies the model selection protocol (optional)
+            Currently only cross validation is supported. Note: The parameters of cross-validation are
+            automatically selected by JADBio.
+            Cross validation: model_selection_protocol = {
+                'type': 'cv'
+            }
         :param str grouping_feat: Specifies an Identifier feature that groups samples which must not be split across
             training and test datasets during analysis, e.g. because they are repeated measurements from the same
             patient (optional).
@@ -687,7 +693,7 @@ class JadbioClient(object):
         """
 
         url = self.__base_url + 'dataset/{}/analyze'.format(dataset_id)
-        ret = self.__analyze_dataset__(name, outcome, thoroughness, core_count,
+        ret = self.__analyze_dataset__(name, outcome, model_selection_protocol, thoroughness, core_count,
                                        grouping_feat, models_considered,
                                        feature_selection, max_signature_size,
                                        max_visualized_signature_count, None, None,
@@ -926,7 +932,7 @@ class JadbioClient(object):
 
         url = self.__base_url + 'dataset/{}/extra/analyze'.format(
             dataset_id)
-        ret = self.__analyze_dataset__(name, outcome, thoroughness, core_count,
+        ret = self.__analyze_dataset__(name, outcome, None, thoroughness, core_count,
                                        grouping_feat, models_considered,
                                        feature_selection, max_signature_size,
                                        max_visualized_signature_count,
@@ -1745,7 +1751,7 @@ class JadbioClient(object):
         return JadbioClient.__parse_response__(ret, 'Image Upload Commit')
 
     # ---------------Private-Functions------------------------------------------#
-    def __analyze_dataset__(self, name, outcome, thoroughness, core_count,
+    def __analyze_dataset__(self, name, outcome, model_selection_protocol, thoroughness, core_count,
                             grouping_feat, models_considered,
                             feature_selection, max_signature_size,
                             max_visualized_signature_count, extra_models, extra_fs, url):
@@ -1758,9 +1764,10 @@ class JadbioClient(object):
             'coreCount': core_count,
             'name': name
         }
+        if model_selection_protocol is not None:
+            analyze_dataset_request['msProtocol'] = model_selection_protocol
         if max_visualized_signature_count is not None:
-            analyze_dataset_request[
-                'maxVisualizedSignatureCount'] = max_visualized_signature_count
+            analyze_dataset_request['maxVisualizedSignatureCount'] = max_visualized_signature_count
         if max_signature_size is not None:
             analyze_dataset_request['maxSignatureSize'] = max_signature_size
         if grouping_feat is not None:
