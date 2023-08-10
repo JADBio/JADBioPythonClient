@@ -658,7 +658,8 @@ class JadbioClient(object):
                                                         'timeToEvent': 'time_to_event_variable_name'
                                                         }}
         :param dict model_selection_protocol: dictionary. Specifies the model selection protocol (optional)
-            Currently only cross validation is supported.
+            Currently only cross validation is supported. Note: The parameters of cross-validation are
+            automatically selected by JADBio.
             Cross validation: model_selection_protocol = {
                 'type': 'cv'
             }
