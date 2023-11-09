@@ -547,46 +547,6 @@ class JadbioClient(object):
             JadbioClient.__parse_response__(ret,
                                             'Change feature types')['taskId'])
 
-    def vertical_merge(self, dataset_id: str, new_name: str, datasets: list):
-        """
-        Vertical merge the specified dataset with a list of datasets. If the datasets headers
-        are not the same, the result dataset will contain only the intersection of the headers.
-
-        :param str dataset_id:  Identifies the source dataset. It must belong to a project to which the user has read
-            and write permissions. The new dataset will be attached to that same project.
-        :param str new_name: Used to name the new dataset. It must have at least 3 and at most 60 characters and must
-            be unique within the target project.
-        :param list datasets: List of datasets used for merging. The user should have read permissions for all datasets.
-
-        :return: taskId
-        :rtype: str
-        :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
-
-        :Example:
-
-        >>> client = JadbioClient('juser@gmail.com', 'a password')
-        >>> client.vertical_merge('6065', 'file_cat', ['6066', '6067'])
-        '691'
-        >>> import time
-        >>> time.sleep(3) # normally this would be done in a while loop
-        >>> client.get_task_status('691')
-        {'taskId': '691', 'state': 'finished', 'datasetIds': ['6068'],
-                'datasetId': '6068'}
-        """
-
-        url = self.__base_url + 'dataset/{}/verticalMerge'.format(
-            dataset_id)
-        vertical_merge_request = {
-            'newName': new_name,
-            'datasets': datasets
-        }
-        ret = self.__session.post(url,
-                                  json=vertical_merge_request,
-                                  headers=self.__token)
-        return str(
-            JadbioClient.__parse_response__(ret,
-                                            'Vertical merge')['taskId'])
-
     def change_feature_types_check(self, dataset_id: str, new_name: str,
                                    changes: list):
         """
