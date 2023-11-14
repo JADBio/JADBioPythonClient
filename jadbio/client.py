@@ -1755,7 +1755,7 @@ class JadbioClient(object):
                     'description': description,
                     'hasFeatureHeaders': has_feature_names
                 }),
-                'file': ('target.csv', open(data_file, 'rb', encoding='utf-8-sig'), 'text/plain'),
+                'file': ('target.csv', open(data_file, 'rb'), 'text/plain'),
             })
         ret = requests.post(url,
                             data=encoded_data,
@@ -1776,7 +1776,7 @@ class JadbioClient(object):
         encoded_data = MultipartEncoder(
             fields={
                 'sampleId': sample,
-                'file': (fname, open(path, 'r', encoding='utf-8-sig'), 'text/plain')
+                'file': (fname, open(path, 'rb'), 'text/plain')
             })
         ret = requests.post(url,
                             data=encoded_data,
