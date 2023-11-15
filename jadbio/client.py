@@ -612,11 +612,50 @@ class JadbioClient(object):
                 'datasetId': '6068'}
         """
 
-        url = self.__base_url + 'dataset/{}/horizontalMerge'.format(
-            dataset_id)
+        url = self.__base_url + 'dataset/{}/horizontalMerge'.format(dataset_id)
         horizontal_merge_request = {
             'newName': new_name,
             'datasets': datasets
+        }
+        ret = self.__session.post(url,
+                                  json=horizontal_merge_request,
+                                  headers=self.__token)
+        return str(
+            JadbioClient.__parse_response__(ret,
+                                            'Horizontal merge')['taskId'])
+
+
+    def random_split(self, dataset_id: str, percentage: float, new_name1: str, new_name2: str):
+        """
+        Randomly splits dataset in two datasets, with (percentage, 100-percentage) number of samples each one accordingly
+
+        :param str dataset_id:  Identifies the source dataset. It must belong to a project to which the user has read
+            and write permissions. The resulting datasets will be attached to that same project.
+        :param float percentage: Floating point number, in (0,100).
+        :param new_name1: name of the first split dataset
+        :param new_name2: name of the second split dataset
+
+        :return: taskId
+        :rtype: str
+        :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
+
+        :Example:
+
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
+        >>> client.random_split('6065', 50, 'split1', 'split2')
+        '693'
+        >>> import time
+        >>> time.sleep(3) # normally this would be done in a while loop
+        >>> client.get_task_status('691')
+        {'taskId': '691', 'state': 'finished', 'datasetIds': ['6068'],
+                'datasetId': '6068'}
+        """
+
+        url = self.__base_url + 'dataset/{}/randomSplit'.format(dataset_id)
+        horizontal_merge_request = {
+            'percentage': percentage,
+            'newName1': new_name1,
+            'newName2': new_name2
         }
         ret = self.__session.post(url,
                                   json=horizontal_merge_request,
