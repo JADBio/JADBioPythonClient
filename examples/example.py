@@ -15,10 +15,10 @@ if __name__ == '__main__':
     pth_to_resources = cur_folder_pth + '/resources'
 
     # initialize session
-    client = jad.JadbioClient('an active JADBio username or email', 'password')
+    client = jad.JadbioClient('cicd', 'userstudy123','http://localhost:4111')
     print("Version: " + client.get_version())
     # create a new project
-    pid = client.create_project("this_is_a_name")
+    pid = client.create_project("this_is_a_name2")
 
     # print projects current user has access to
     print("Projects: " + str(client.get_projects()))
@@ -68,12 +68,13 @@ if __name__ == '__main__':
         }]
 
         # check if everything seems ok with running an analysis with these parameters
-        possible_warning_error = client.analyze_dataset_extra_models_check(
+        possible_warning_error = client.analyze_dataset_check(
             dataset_id,
             'iris_analysis', {'classification': 'variable1'},
             max_signature_size=10,
             max_visualized_signature_count=50,
-            extra_models=extra_models)
+            analysis_metric="BACC") 
+
         for key, messages in possible_warning_error.items():
             print(key + ": " + str(messages))
 
@@ -82,12 +83,12 @@ if __name__ == '__main__':
                 raise Exception("Invalid analysis parameters: " +
                                 str(messages))
 
-        analysis_id = client.analyze_dataset_extra_models(
+        analysis_id = client.analyze_dataset(
             dataset_id,
             'iris_analysis', {'classification': 'variable1'},
             max_signature_size=10,
             max_visualized_signature_count=50,
-            extra_models=extra_models)
+            analysis_metric="BACC") #analysis_metric="yy"
 
         status = client.get_analysis_status(analysis_id)
 
