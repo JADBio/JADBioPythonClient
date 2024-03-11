@@ -11,6 +11,10 @@
 </p>
 
 ***
+> [!WARNING]
+> The API URL to JADBio has changed, and requests with client versions <= 1.2.12 will fail.
+We recommend updating the client to a newer version. 
+Alternatively, the URL can be set when creating a client object: ``JadbioClient(username, password, host='https://app.jadbio.com')``
 
 JADBio's purpose-built AutoML platform provides leading-edge AI tools and automation capabilities enabling life-science 
 professionals to build and deploy accurate and interpretable predictive models with speed and ease, even if they have no
