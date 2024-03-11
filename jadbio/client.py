@@ -534,8 +534,7 @@ class JadbioClient(object):
                 'datasetId': '6067'}
         """
 
-        url = self.__base_url + 'dataset/{}/changeFeatureTypes'.format(
-            dataset_id)
+        url = self.__base_url + 'dataset/{}/changeFeatureTypes'.format(dataset_id)
         change_feature_types_request = {
             'newName': new_name,
             'changes': changes
@@ -546,6 +545,123 @@ class JadbioClient(object):
         return str(
             JadbioClient.__parse_response__(ret,
                                             'Change feature types')['taskId'])
+
+    def vertical_merge(self, dataset_id: str, new_name: str, datasets: list):
+        """
+        Vertical merge the specified dataset with a list of datasets. If the datasets headers
+        are not the same, the resulting dataset will contain only the intersection of the headers.
+
+        :param str dataset_id: Identifies the source dataset. It must belong to a project to which the user has read
+            and write permissions. The new dataset will be attached to that same project.
+        :param str new_name: Used to name the new dataset. It must have at least 3 and at most 60 characters and must
+            be unique within the target project.
+        :param list datasets: List of dataset ids used for merging. The user should have read permissions for all datasets.
+
+        :return: taskId
+        :rtype: str
+        :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
+
+        :Example:
+
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
+        >>> client.vertical_merge('6065', 'file_cat', ['6066', '6067'])
+        '691'
+        >>> import time
+        >>> time.sleep(3) # normally this would be done in a while loop
+        >>> client.get_task_status('691')
+        {'taskId': '691', 'state': 'finished', 'datasetIds': ['6068'],
+                'datasetId': '6068'}
+        """
+
+        url = self.__base_url + 'dataset/{}/verticalMerge'.format(dataset_id)
+        vertical_merge_request = {
+            'newName': new_name,
+            'datasets': datasets
+        }
+        ret = self.__session.post(url,
+                                  json=vertical_merge_request,
+                                  headers=self.__token)
+        return str(
+            JadbioClient.__parse_response__(ret,
+                                            'Vertical merge')['taskId'])
+
+    def horizontal_merge(self, dataset_id: str, new_name: str, datasets: list):
+        """
+        Horizontal merge the specified dataset with a list of datasets. If the datasets sample headers
+        are not the same, the resulting dataset will contain only the common intersection of the headers.
+
+        :param str dataset_id: Identifies the source dataset. It must belong to a project to which the user has read
+            and write permissions. The new dataset will be attached to that same project.
+        :param str new_name: Used to name the new dataset. It must have at least 3 and at most 60 characters and must
+            be unique within the target project.
+        :param list datasets: List of dataset ids used for merging. The user should have read permissions for all datasets.
+
+        :return: taskId
+        :rtype: str
+        :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
+
+        :Example:
+
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
+        >>> client.horizontal_merge('6065', 'file_cat', ['6066', '6067'])
+        '691'
+        >>> import time
+        >>> time.sleep(3) # normally this would be done in a while loop
+        >>> client.get_task_status('691')
+        {'taskId': '691', 'state': 'finished', 'datasetIds': ['6068'],
+                'datasetId': '6068'}
+        """
+
+        url = self.__base_url + 'dataset/{}/horizontalMerge'.format(dataset_id)
+        horizontal_merge_request = {
+            'newName': new_name,
+            'datasets': datasets
+        }
+        ret = self.__session.post(url,
+                                  json=horizontal_merge_request,
+                                  headers=self.__token)
+        return str(
+            JadbioClient.__parse_response__(ret,
+                                            'Horizontal merge')['taskId'])
+
+    def random_split(self, dataset_id: str, percentage: float, new_name1: str, new_name2: str):
+        """
+        Randomly splits dataset in two datasets, containing (percentage, 100-percentage) of the samples each.
+
+        :param str dataset_id: Identifies the source dataset. It must belong to a project to which the user has read
+            and write permissions. The resulting datasets will be attached to that same project.
+        :param float percentage: Number in (0,100).
+        :param new_name1: name of the first split dataset
+        :param new_name2: name of the second split dataset
+
+        :return: taskId
+        :rtype: str
+        :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
+
+        :Example:
+
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
+        >>> client.random_split('6065', 50, 'split1', 'split2')
+        '693'
+        >>> import time
+        >>> time.sleep(3) # normally this would be done in a while loop
+        >>> client.get_task_status('691')
+        {'taskId': '691', 'state': 'finished', 'datasetIds': ['6068'],
+                'datasetId': '6068'}
+        """
+
+        url = self.__base_url + 'dataset/{}/randomSplit'.format(dataset_id)
+        horizontal_merge_request = {
+            'percentage': percentage,
+            'newName1': new_name1,
+            'newName2': new_name2
+        }
+        ret = self.__session.post(url,
+                                  json=horizontal_merge_request,
+                                  headers=self.__token)
+        return str(
+            JadbioClient.__parse_response__(ret,
+                                            'Horizontal merge')['taskId'])
 
     def change_feature_types_check(self, dataset_id: str, new_name: str,
                                    changes: list):
