@@ -549,13 +549,13 @@ class JadbioClient(object):
     def vertical_merge(self, dataset_id: str, new_name: str, datasets: list):
         """
         Vertical merge the specified dataset with a list of datasets. If the datasets headers
-        are not the same, the result dataset will contain only the intersection of the headers.
+        are not the same, the resulting dataset will contain only the intersection of the headers.
 
-        :param str dataset_id:  Identifies the source dataset. It must belong to a project to which the user has read
+        :param str dataset_id: Identifies the source dataset. It must belong to a project to which the user has read
             and write permissions. The new dataset will be attached to that same project.
         :param str new_name: Used to name the new dataset. It must have at least 3 and at most 60 characters and must
             be unique within the target project.
-        :param list datasets: List of datasets used for merging. The user should have read permissions for all datasets.
+        :param list datasets: List of dataset ids used for merging. The user should have read permissions for all datasets.
 
         :return: taskId
         :rtype: str
@@ -588,13 +588,13 @@ class JadbioClient(object):
     def horizontal_merge(self, dataset_id: str, new_name: str, datasets: list):
         """
         Horizontal merge the specified dataset with a list of datasets. If the datasets sample headers
-        are not the same, the result dataset will contain only the common intersection of the headers.
+        are not the same, the resulting dataset will contain only the common intersection of the headers.
 
-        :param str dataset_id:  Identifies the source dataset. It must belong to a project to which the user has read
+        :param str dataset_id: Identifies the source dataset. It must belong to a project to which the user has read
             and write permissions. The new dataset will be attached to that same project.
         :param str new_name: Used to name the new dataset. It must have at least 3 and at most 60 characters and must
             be unique within the target project.
-        :param list datasets: List of datasets used for merging. The user should have read permissions for all datasets.
+        :param list datasets: List of dataset ids used for merging. The user should have read permissions for all datasets.
 
         :return: taskId
         :rtype: str
@@ -624,14 +624,13 @@ class JadbioClient(object):
             JadbioClient.__parse_response__(ret,
                                             'Horizontal merge')['taskId'])
 
-
     def random_split(self, dataset_id: str, percentage: float, new_name1: str, new_name2: str):
         """
-        Randomly splits dataset in two datasets, with (percentage, 100-percentage) number of samples each one accordingly
+        Randomly splits dataset in two datasets, containing (percentage, 100-percentage) of the samples each.
 
-        :param str dataset_id:  Identifies the source dataset. It must belong to a project to which the user has read
+        :param str dataset_id: Identifies the source dataset. It must belong to a project to which the user has read
             and write permissions. The resulting datasets will be attached to that same project.
-        :param float percentage: Floating point number, in (0,100).
+        :param float percentage: Number in (0,100).
         :param new_name1: name of the first split dataset
         :param new_name2: name of the second split dataset
 
