@@ -777,9 +777,7 @@ class JadbioClient(object):
             Currently only cross validation is supported. Note: The parameters of cross-validation are
             automatically selected by JADBio.
 
-            Cross validation: model_selection_protocol = {
-                'type': 'cv'
-            }
+            Cross validation: model_selection_protocol = {'type': 'cv'}
         :param str grouping_feat: Specifies an Identifier feature that groups samples which must not be split across
             training and test datasets during analysis, e.g. because they are repeated measurements from the same
             patient (optional).

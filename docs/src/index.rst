@@ -19,6 +19,9 @@ Documentation
     delete_dataset,
     change_feature_types,
     change_feature_types_check,
+    vertical_merge,
+    horizontal_merge,
+    random_split,
     get_task_status,
     analyze_dataset,
     analyze_dataset_check,
@@ -42,4 +45,7 @@ Documentation
     get_predictions,
     get_prediction_status,
     get_prediction_result,
-    delete_prediction
+    delete_prediction,
+    image_upload_init,
+    image_upload_add_sample,
+    image_upload_commit
