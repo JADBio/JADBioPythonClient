@@ -607,7 +607,6 @@ class JadbioClient(object):
         return JadbioClient.__parse_response__(ret,
                                                'Check change feature types')
 
-
     def get_task_status(self, task_id: str):
         """
         Returns the status of an asynchronous task running on the server.
@@ -684,7 +683,6 @@ class JadbioClient(object):
             visualization in the user interface. When present, it must be a positive integer.
             When not present, a default value of 5 is used.
         :param string analysis_metric: The metric that the pipeline will optimize over. When present it must be one of the specified metric.
-
         :return: analysis_id
         :rtype: str
         :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
@@ -826,7 +824,6 @@ class JadbioClient(object):
             visualization in the user interface. When present, it must be a positive integer.
             When not present, a default value of 5 is used.
         :param string analysis_metric: The metric that the pipeline will optimize over. When present it must be one of the specified metric.
-        
         :return: {errors?: [string], warnings?: [string], suggestions?: [string]}
         :rtype: dict
         :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
@@ -1857,8 +1854,7 @@ class JadbioClient(object):
             print(f"WARNING, provided metric : {metric} is not compatible with outcome type : {outcome_type}, using default option.")
             return None
 
-        return metric
-        
+        return metric      
         
     @staticmethod
     def __extra_algs_to_json__(extra_models):
