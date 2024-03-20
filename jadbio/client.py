@@ -607,10 +607,6 @@ class JadbioClient(object):
         return JadbioClient.__parse_response__(ret,
                                                'Check change feature types')
 
-    def dataom(self):
-        url = self.__base_url + "api/biodataome/list"
-        ret = self.__session.post(url,headers=self.__token)
-        return JadbioClient.__parse_response__(ret, 'data')
 
     def get_task_status(self, task_id: str):
         """
