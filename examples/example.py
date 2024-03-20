@@ -74,6 +74,7 @@ if __name__ == '__main__':
             max_signature_size=10,
             max_visualized_signature_count=50,
             extra_models=extra_models)
+
         for key, messages in possible_warning_error.items():
             print(key + ": " + str(messages))
 
