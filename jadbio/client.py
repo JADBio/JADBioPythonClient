@@ -779,7 +779,6 @@ class JadbioClient(object):
                               dataset_id: str,
                               name: str,
                               outcome: dict,
-                              model_selection_protocol: dict = None,
                               thoroughness: str = 'preliminary',
                               core_count: int = 1,
                               grouping_feat: str = None,
@@ -787,6 +786,7 @@ class JadbioClient(object):
                               feature_selection: str = 'mostRelevant',
                               max_signature_size=None,
                               max_visualized_signature_count=None, 
+                              model_selection_protocol: dict = None,
                               analysis_metric = None):
         """
         Check for possible errors and warnings, if an analysis is run on a specified dataset.
@@ -853,7 +853,6 @@ class JadbioClient(object):
                                      dataset_id: str,
                                      name: str,
                                      outcome: dict,
-                                     model_selection_protocol: dict = None,
                                      extra_models: list = None,
                                      extra_feature_selectors: list = None,
                                      thoroughness: str = 'preliminary',
@@ -863,6 +862,7 @@ class JadbioClient(object):
                                      feature_selection: str = 'mostRelevant',
                                      max_signature_size=None,
                                      max_visualized_signature_count=None, 
+                                     model_selection_protocol: dict = None,
                                      analysis_metric = None):
         """
         Initiate an analysis of a specified dataset, with additional models specified by the user.
@@ -1797,7 +1797,7 @@ class JadbioClient(object):
         return self.__session.post(url, json=analyze_dataset_request, headers=self.__token)
 
 
-    def __analyze_dataset_custom_preprocessing__(self, name, outcome,  thoroughness, core_count,
+    def __analyze_dataset_custom_preprocessing__(self, name, outcome, thoroughness, core_count,
                         grouping_feat, models_considered,
                         feature_selection, max_signature_size,
                         max_visualized_signature_count, extra_models, extra_fs, custom_preprocessing, url, analysis_metric):
