@@ -964,7 +964,6 @@ class JadbioClient(object):
             dataset_id: str,
             name: str,
             outcome: dict,
-            model_selection_protocol: dict = None,
             extra_models: list = None,
             extra_feature_selectors: list = None,
             thoroughness: str = 'preliminary',
@@ -974,6 +973,7 @@ class JadbioClient(object):
             feature_selection: str = 'mostRelevant',
             max_signature_size=None,
             max_visualized_signature_count=None, 
+            model_selection_protocol: dict = None,
             analysis_metric = None):
         """
         Check for possible errors and warnings, if an analysis with extra algorithms is run on a specified dataset.
@@ -1542,7 +1542,7 @@ class JadbioClient(object):
             "errors": ["TestDataContainsSignatureFeatureCategoryNotInTrainingData"]
         }
         """
-        
+
         url = self.__base_url + 'analysis/{}/check/predict/{}'.format(
             analysis_id, dataset_id)
         predict_outcome_request = {
