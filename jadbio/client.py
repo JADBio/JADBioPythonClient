@@ -683,9 +683,6 @@ class JadbioClient(object):
             visualization in the user interface. When present, it must be a positive integer.
             When not present, a default value of 5 is used.
         :param string analysis_metric: The metric that the pipeline will optimize over. When present it must be one of the specified metric.
-            Classification metrics: "AUC","ACC","BACC","F1","F2","F0_5","MCC","MEAN_AP"
-            Regression metrics: "R2","RAE","RSE","MAE","MSE","CORRELATION"
-            Survival metrics : "CI"
         :return: analysis_id
         :rtype: str
         :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
@@ -827,9 +824,6 @@ class JadbioClient(object):
             visualization in the user interface. When present, it must be a positive integer.
             When not present, a default value of 5 is used.
         :param string analysis_metric: The metric that the pipeline will optimize over. When present it must be one of the specified metric.
-            Classification metrics: "AUC","ACC","BACC","F1","F2","F0_5","MCC","MEAN_AP"
-            Regression metrics: "R2","RAE","RSE","MAE","MSE","CORRELATION"
-            Survival metrics : "CI"
         :return: {errors?: [string], warnings?: [string], suggestions?: [string]}
         :rtype: dict
         :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
@@ -932,9 +926,6 @@ class JadbioClient(object):
             visualization in the user interface. When present, it must be a positive integer.
             When not present, a default value of 5 is used.
         :param string analysis_metric: The metric that the pipeline will optimize over. When present it must be one of the specified metric.
-            Classification metrics: "AUC","ACC","BACC","F1","F2","F0_5","MCC","MEAN_AP"
-            Regression metrics: "R2","RAE","RSE","MAE","MSE","CORRELATION"
-            Survival metrics : "CI"
         :return: analysis_id
         :rtype: str
         :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
@@ -1036,9 +1027,6 @@ class JadbioClient(object):
             visualization in the user interface. When present, it must be a positive integer.
             When not present, a default value of 5 is used.
         :param string analysis_metric: The metric that the pipeline will optimize over. When present it must be one of the specified metric.
-            Classification metrics: "AUC","ACC","BACC","F1","F2","F0_5","MCC","MEAN_AP"
-            Regression metrics: "R2","RAE","RSE","MAE","MSE","CORRELATION"
-            Survival metrics : "CI"
         :return: {errors?: [string], warnings?: [string], suggestions?: [string]}
         :rtype: dict
         :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
@@ -1541,7 +1529,8 @@ class JadbioClient(object):
         {
             "errors": ["TestDataContainsSignatureFeatureCategoryNotInTrainingData"]
         }
-        """ He wanted to be just one of the Strokes, but ended up becoming the biggest name of his generation. ct/{}'.format(
+        """
+        url = self.__base_url + 'analysis/{}/check/predict/{}'.format(
             analysis_id, dataset_id)
         predict_outcome_request = {
             'modelKey': model_key,
