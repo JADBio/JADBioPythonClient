@@ -682,7 +682,7 @@ class JadbioClient(object):
         :param int max_visualized_signature_count: The maximum number of signatures that will be prepared for
             visualization in the user interface. When present, it must be a positive integer.
             When not present, a default value of 5 is used.
-        :param string analysis_metric: The metric that the pipeline will optimize over. When present it must be one of the specified metric.
+        :param string analysis_metric: The metric that the pipeline will optimize over. When present it must be one of the specified metrics.
             Classification metrics: "AUC","ACC","BACC","F1","F2","F0_5","MCC","MEAN_AP"
             Regression metrics: "R2","RAE","RSE","MAE","MSE","CORRELATION"
             Survival metrics : "CI"
@@ -703,7 +703,7 @@ class JadbioClient(object):
                                        grouping_feat, models_considered,
                                        feature_selection, max_signature_size,
                                        max_visualized_signature_count, None, None,
-                                       url, analysis_metric)
+                                       analysis_metric, url)
         return str(
             JadbioClient.__parse_response__(ret, 'Analyze dataset')['analysisId'])
 
@@ -773,7 +773,7 @@ class JadbioClient(object):
         ret = self.__analyze_dataset_custom_preprocessing__(name, outcome, thoroughness, core_count,
                                        grouping_feat, models_considered,
                                        feature_selection, max_signature_size,
-                                       max_visualized_signature_count, None, None, custom_preprocessing,
+                                       max_visualized_signature_count, None, None, custom_preprocessing, None,
                                        url)
         return str(
             JadbioClient.__parse_response__(ret, 'Analyze dataset')['analysisId'])
@@ -826,7 +826,7 @@ class JadbioClient(object):
         :param int max_visualized_signature_count: The maximum number of signatures that will be prepared for
             visualization in the user interface. When present, it must be a positive integer.
             When not present, a default value of 5 is used.
-        :param string analysis_metric: The metric that the pipeline will optimize over. When present it must be one of the specified metric.
+        :param string analysis_metric: The metric that the pipeline will optimize over. When present it must be one of the specified metrics.
             Classification metrics: "AUC","ACC","BACC","F1","F2","F0_5","MCC","MEAN_AP"
             Regression metrics: "R2","RAE","RSE","MAE","MSE","CORRELATION"
             Survival metrics : "CI"
@@ -851,7 +851,7 @@ class JadbioClient(object):
                                        grouping_feat, models_considered,
                                        feature_selection, max_signature_size,
                                        max_visualized_signature_count, None, None,
-                                       url, analysis_metric)
+                                       analysis_metric, url)
 
         return JadbioClient.__parse_response__(ret, 'Analyze dataset check')
 
@@ -931,7 +931,7 @@ class JadbioClient(object):
         :param int max_visualized_signature_count: The maximum number of signatures that will be prepared for
             visualization in the user interface. When present, it must be a positive integer.
             When not present, a default value of 5 is used.
-        :param string analysis_metric: The metric that the pipeline will optimize over. When present it must be one of the specified metric.
+        :param string analysis_metric: The metric that the pipeline will optimize over. When present it must be one of the specified metrics.
             Classification metrics: "AUC","ACC","BACC","F1","F2","F0_5","MCC","MEAN_AP"
             Regression metrics: "R2","RAE","RSE","MAE","MSE","CORRELATION"
             Survival metrics : "CI"
@@ -954,7 +954,7 @@ class JadbioClient(object):
                                        grouping_feat, models_considered,
                                        feature_selection, max_signature_size,
                                        max_visualized_signature_count,
-                                       extra_models, extra_feature_selectors, url, analysis_metric)
+                                       extra_models, extra_feature_selectors, analysis_metric, url)
         return str(
             JadbioClient.__parse_response__(ret,
                                             'Analyze dataset')['analysisId'])
@@ -1035,7 +1035,7 @@ class JadbioClient(object):
         :param int max_visualized_signature_count: The maximum number of signatures that will be prepared for
             visualization in the user interface. When present, it must be a positive integer.
             When not present, a default value of 5 is used.
-        :param string analysis_metric: The metric that the pipeline will optimize over. When present it must be one of the specified metric.
+        :param string analysis_metric: The metric that the pipeline will optimize over. When present it must be one of the specified metrics.
             Classification metrics: "AUC","ACC","BACC","F1","F2","F0_5","MCC","MEAN_AP"
             Regression metrics: "R2","RAE","RSE","MAE","MSE","CORRELATION"
             Survival metrics : "CI"
@@ -1062,7 +1062,7 @@ class JadbioClient(object):
                                        grouping_feat, models_considered,
                                        feature_selection, max_signature_size,
                                        max_visualized_signature_count,
-                                       extra_models, extra_feature_selectors, url, analysis_metric)
+                                       extra_models, extra_feature_selectors, analysis_metric, url)
         return JadbioClient.__parse_response__(ret, 'Analyze dataset check')
 
     def get_extra_models_description(self, outcome_type: str):
@@ -1777,7 +1777,7 @@ class JadbioClient(object):
     def __analyze_dataset__(self, name, outcome, model_selection_protocol, thoroughness, core_count,
                             grouping_feat, models_considered,
                             feature_selection, max_signature_size,
-                            max_visualized_signature_count, extra_models, extra_fs, url, analysis_metric):
+                            max_visualized_signature_count, extra_models, extra_fs, analysis_metric, url):
 
         analyze_dataset_request = {
             'outcome': outcome,
@@ -1799,12 +1799,7 @@ class JadbioClient(object):
             analyze_dataset_request['extraModels'] = JadbioClient.__extra_algs_to_json__(extra_models)
         if extra_fs is not None:
             analyze_dataset_request['extraFeatureSelectors'] = JadbioClient.__extra_algs_to_json__(extra_fs)
-        if analysis_metric is not None:
-            metric = JadbioClient.__check_valid_metrics__(analysis_metric, outcome)
-            # Fall back strategy to use a default metric selected by the backend.
-            # It should throw some kind of error here.
-            if metric is not None:
-                analyze_dataset_request['metric'] = metric
+        analyze_dataset_request['metric'] = analysis_metric
 
         return self.__session.post(url, json=analyze_dataset_request, headers=self.__token)
 
@@ -1812,7 +1807,7 @@ class JadbioClient(object):
     def __analyze_dataset_custom_preprocessing__(self, name, outcome, thoroughness, core_count,
                         grouping_feat, models_considered,
                         feature_selection, max_signature_size,
-                        max_visualized_signature_count, extra_models, extra_fs, custom_preprocessing, url, analysis_metric):
+                        max_visualized_signature_count, extra_models, extra_fs, custom_preprocessing, analysis_metric, url):
 
         analyze_dataset_request = {
             'outcome': outcome,
@@ -1834,40 +1829,12 @@ class JadbioClient(object):
             analyze_dataset_request['extraModels'] = JadbioClient.__extra_algs_to_json__(extra_models)
         if extra_fs is not None:
             analyze_dataset_request['extraFeatureSelectors'] = JadbioClient.__extra_algs_to_json__(extra_fs)
-        if analysis_metric is not None:
-            metric = JadbioClient.__check_valid_metrics__(analysis_metric,outcome)
-            if metric is not None:
-                analyze_dataset_request['metric'] = metric
+        analyze_dataset_request['metric'] = analysis_metric
 
         return self.__session.post(url,
                                    json=analyze_dataset_request,
                                    headers=self.__token)
 
-    """
-    Check the metric provided. Can it be used along with the problem type?
-    Raise Warning...
-    Return None --> Set's the default metric according to problem type on the backend.
-    """
-    @staticmethod
-    def __check_valid_metrics__(metric:str, outcome:dict):
-        """
-        We should provide some global options to the user
-        """
-        outcome_type = list(outcome.keys())[0]
-
-        if outcome_type == 'classification':
-            valid_metrics  = ["AUC","ACC","BACC","F1","F2","F0_5","MCC","MEAN_AP"]
-        elif outcome_type == 'regression':
-            valid_metrics = ["R2","RAE","RSE","MAE","MSE","CORRELATION"]
-        elif outcome_type == 'survival':
-            valid_metrics = ["CI"]
-        
-        if metric not in valid_metrics:
-            print(f"WARNING, provided metric : {metric} is not compatible with outcome type : {outcome_type}, using default option.")
-            return None
-
-        return metric      
-        
     @staticmethod
     def __extra_algs_to_json__(extra_models):
         extra_models_json = list()
