@@ -640,7 +640,7 @@ class JadbioClient(object):
                         feature_selection: str = 'mostRelevant',
                         max_signature_size=None,
                         max_visualized_signature_count=None,
-                        analysis_metric = None):
+                        analysis_metric: str = None):
         """
         Initiate an analysis of a specified dataset.
 
@@ -790,7 +790,7 @@ class JadbioClient(object):
                               max_signature_size=None,
                               max_visualized_signature_count=None, 
                               model_selection_protocol: dict = None,
-                              analysis_metric = None):
+                              analysis_metric: str = None):
         """
         Check for possible errors and warnings, if an analysis is run on a specified dataset.
 
@@ -869,7 +869,7 @@ class JadbioClient(object):
                                      max_signature_size=None,
                                      max_visualized_signature_count=None, 
                                      model_selection_protocol: dict = None,
-                                     analysis_metric = None):
+                                     analysis_metric: str = None):
         """
         Initiate an analysis of a specified dataset, with additional models specified by the user.
         These models are added to be trained in the analysis on top of the models that JADBio selects using its AI system.
@@ -974,7 +974,7 @@ class JadbioClient(object):
             max_signature_size=None,
             max_visualized_signature_count=None, 
             model_selection_protocol: dict = None,
-            analysis_metric = None):
+            analysis_metric: str = None):
         """
         Check for possible errors and warnings, if an analysis with extra algorithms is run on a specified dataset.
 
@@ -1777,7 +1777,7 @@ class JadbioClient(object):
     def __analyze_dataset__(self, name, outcome, model_selection_protocol, thoroughness, core_count,
                             grouping_feat, models_considered,
                             feature_selection, max_signature_size,
-                            max_visualized_signature_count, extra_models, extra_fs, analysis_metric, url):
+                            max_visualized_signature_count, extra_models, extra_fs, analysis_metric: str, url):
 
         analyze_dataset_request = {
             'outcome': outcome,
@@ -1807,7 +1807,7 @@ class JadbioClient(object):
     def __analyze_dataset_custom_preprocessing__(self, name, outcome, thoroughness, core_count,
                         grouping_feat, models_considered,
                         feature_selection, max_signature_size,
-                        max_visualized_signature_count, extra_models, extra_fs, custom_preprocessing, analysis_metric, url):
+                        max_visualized_signature_count, extra_models, extra_fs, custom_preprocessing, analysis_metric: str, url):
 
         analyze_dataset_request = {
             'outcome': outcome,
