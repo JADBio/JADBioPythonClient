@@ -1913,7 +1913,8 @@ class JadbioClient(object):
             analyze_dataset_request['extraModels'] = JadbioClient.__extra_algs_to_json__(extra_models)
         if extra_fs is not None:
             analyze_dataset_request['extraFeatureSelectors'] = JadbioClient.__extra_algs_to_json__(extra_fs)
-        analyze_dataset_request['metric'] = analysis_metric
+        if analysis_metric is not None:
+            analyze_dataset_request['metric'] = analysis_metric
 
         return self.__session.post(url, json=analyze_dataset_request, headers=self.__token)
 
@@ -1943,7 +1944,8 @@ class JadbioClient(object):
             analyze_dataset_request['extraModels'] = JadbioClient.__extra_algs_to_json__(extra_models)
         if extra_fs is not None:
             analyze_dataset_request['extraFeatureSelectors'] = JadbioClient.__extra_algs_to_json__(extra_fs)
-        analyze_dataset_request['metric'] = analysis_metric
+        if analysis_metric is not None:
+            analyze_dataset_request['metric'] = analysis_metric
 
         return self.__session.post(url,
                                    json=analyze_dataset_request,
