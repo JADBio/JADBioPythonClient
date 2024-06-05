@@ -798,7 +798,7 @@ class JadbioClient(object):
             When not present, a default value of 5 is used.
         :param string analysis_metric: The metric that the pipeline will optimize over. When present it must be one of the specified metrics.
             Classification metrics: "AUC","ACC","BACC","F1","F2","F0_5","MCC","MEAN_AP"
-            Regression metrics: "R2","RAE","RSE","MAE","MSE","CORRELATION"
+            Regression metrics: "R2","RAE","RSE","MAE","MSE","CORRELATION","SPEARMAN"
             Survival metrics : "CI"
         :return: analysis_id
         :rtype: str
@@ -942,7 +942,7 @@ class JadbioClient(object):
             When not present, a default value of 5 is used.
         :param string analysis_metric: The metric that the pipeline will optimize over. When present it must be one of the specified metrics.
             Classification metrics: "AUC","ACC","BACC","F1","F2","F0_5","MCC","MEAN_AP"
-            Regression metrics: "R2","RAE","RSE","MAE","MSE","CORRELATION"
+            Regression metrics: "R2","RAE","RSE","MAE","MSE","CORRELATION","SPEARMAN"
             Survival metrics : "CI"
         :return: {errors?: [string], warnings?: [string], suggestions?: [string]}
         :rtype: dict
@@ -1047,7 +1047,7 @@ class JadbioClient(object):
             When not present, a default value of 5 is used.
         :param string analysis_metric: The metric that the pipeline will optimize over. When present it must be one of the specified metrics.
             Classification metrics: "AUC","ACC","BACC","F1","F2","F0_5","MCC","MEAN_AP"
-            Regression metrics: "R2","RAE","RSE","MAE","MSE","CORRELATION"
+            Regression metrics: "R2","RAE","RSE","MAE","MSE","CORRELATION","SPEARMAN"
             Survival metrics : "CI"
         :return: analysis_id
         :rtype: str
@@ -1151,7 +1151,7 @@ class JadbioClient(object):
             When not present, a default value of 5 is used.
         :param string analysis_metric: The metric that the pipeline will optimize over. When present it must be one of the specified metrics.
             Classification metrics: "AUC","ACC","BACC","F1","F2","F0_5","MCC","MEAN_AP"
-            Regression metrics: "R2","RAE","RSE","MAE","MSE","CORRELATION"
+            Regression metrics: "R2","RAE","RSE","MAE","MSE","CORRELATION","SPEARMAN"
             Survival metrics : "CI"
         :return: {errors?: [string], warnings?: [string], suggestions?: [string]}
         :rtype: dict
