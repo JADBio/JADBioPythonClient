@@ -828,6 +828,26 @@ class JadbioClient(object):
             JadbioClient.__parse_response__(ret, 'Analyze dataset')['analysisId'])
     
     def analyze_dataset_custom(self, dataset_id: int, form: AnalysisForm):
+        """
+        Initiate a custom ML analysis of a specified dataset.
+
+        :param int dataset_id: Identity of a dataset attached to a project to which the user has execute permissions.
+        :param AnalysisForm form: Analysis configuration. The form specifies the analysis title, target feature,
+            analysis type, dataset type, tuning effort, core count, cross-validation preferences, tuning parameters,
+            and plots.
+        :return: analysis_id
+        :rtype: str
+        :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
+
+        :Example:
+
+        >>> from jadbio.ml.analysis_form import classification
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
+        >>> form = classification('target_variable_name', 'NORMAL', 1)
+        >>> client.analyze_dataset_custom(6067, form)
+        '5219'
+        """
+
         url = self.__base_url + 'dataset/customMLAnalyze'
         ret = self.__analyze_custom_dataset__(dataset_id, form, url)
         payload = JadbioClient.__parse_response__(ret, 'Analyze dataset custom')
@@ -1419,13 +1439,11 @@ class JadbioClient(object):
 
         return self.__save_downloaded_file__(ret, directory, "model.json")
 
-    def download_client(self, directory: str = ".", body: str = "{}"):
+    def download_client(self, directory: str = "."):
         """
         Downloads the model client executable and returns the local file path.
 
         :param str directory: The directory where the downloaded client file will be saved.
-        :param str body: Raw request body sent to the backend endpoint. Defaults to ``{}`` so
-            Spring receives a non-empty request body.
         :return: The path of the downloaded client file.
         :rtype: Path
         :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
