@@ -1,6 +1,6 @@
 <p align="center">
     <a href="https://jadbio.com/">
-        <img alt="JADBio" src="https://www.jadbio.com/jadbio/wp-content/uploads/github_logo/full_logo_rgb.svg" width="480">
+        <img alt="JADExpert" src="JADExpert.png" width="480">
     </a>
 </p>
 
@@ -14,7 +14,7 @@
 > [!WARNING]
 > The API URL to JADBio has changed, and requests with client versions <= 1.2.12 will fail.
 We recommend updating the client to a newer version. 
-Alternatively, the URL can be set when creating a client object: ``JadbioClient(username, password, host='https://app.jadbio.com')``
+Alternatively, the URL can be set when creating a JADExpert client object: ``JadbioClient(username, password, host='https://app.jadbio.com')``
 
 JADBio's purpose-built AutoML platform provides leading-edge AI tools and automation capabilities enabling life-science 
 professionals to build and deploy accurate and interpretable predictive models with speed and ease, even if they have no
@@ -73,7 +73,7 @@ Documentation for all releases is available [here](https://support.jadbio.com/py
 
 ## Examples
 
-You can experiment with the client running the example python code in the *src/examples/* folder and using the example 
+You can experiment with the JADExpert, running the example python code in the *src/examples/* folder and using the example 
 datasets provided in the *src/examples/resources* folder.
 
 ## Contact
