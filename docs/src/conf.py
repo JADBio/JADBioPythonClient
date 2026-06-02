@@ -3,10 +3,10 @@
 import os
 import sys
 
-from jadbio import __version__
+# Adding project root to sys.path so autodoc imports this checkout.
+sys.path.insert(0, os.path.abspath('../..'))
 
-# Adding jadbio module to sys.path
-sys.path.insert(0, os.path.abspath('../../jadbio/'))
+from jadbio import __version__
 
 # Project information
 project = 'JADBio API Python Client'

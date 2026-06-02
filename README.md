@@ -3,6 +3,11 @@
         <img alt="JADExpert" src="JADExpert.png" width="480">
     </a>
 </p>
+<p align="center">
+    <a href="https://greece20.gov.gr/">
+        <img alt="Funding" src="funding.png" width="360">
+    </a>
+</p>
 
 <p align="center">
     <a href="https://jadbio.com">Homepage</a> |

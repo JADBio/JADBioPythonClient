@@ -7,6 +7,8 @@ from requests.adapters import HTTPAdapter
 from urllib3 import Retry
 from requests_toolbelt import MultipartEncoder
 from typing import List, Tuple
+from pathlib import Path
+from jadbio.ml.analysis_form import AnalysisForm
 
 API_VERSION = 'v1'
 
@@ -481,7 +483,7 @@ class JadbioClient(object):
         url = self.__base_url + 'dataset/{}/delete'.format(dataset_id)
         ret = self.__session.post(url, headers=self.__token)
         return JadbioClient.__parse_response__(ret, 'Delete dataset')
-
+    
     def change_feature_types(self, dataset_id: str, new_name: str,
                              changes: list):
         """
@@ -756,7 +758,8 @@ class JadbioClient(object):
                         feature_selection: str = 'mostRelevant',
                         max_signature_size=None,
                         max_visualized_signature_count=None,
-                        analysis_metric: str = None):
+                        analysis_metric: str = None,
+                        optimizer: str = None):
         """
         Initiate an analysis of a specified dataset.
 
@@ -800,6 +803,9 @@ class JadbioClient(object):
             Classification metrics: "AUC","ACC","BACC","F1","F2","F0_5","MCC","MEAN_AP"
             Regression metrics: "R2","RAE","RSE","MAE","MSE","CORRELATION","SPEARMAN"
             Survival metrics : "CI"
+        :param str optimizer: Optimization strategy for the analysis. Supported values are "guided", "random",
+            and "hpo". If omitted or set to any other value, the parameter is not sent and the backend defaults to
+            "guided".
         :return: analysis_id
         :rtype: str
         :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
@@ -808,7 +814,7 @@ class JadbioClient(object):
 
         >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> client.analyze_dataset('6067', 'file_classification',
-        ...    {'classification': 'variable1'})
+        ...    {'classification': 'variable1'}, optimizer='guided')
         '5219'
         """
 
@@ -817,9 +823,42 @@ class JadbioClient(object):
                                        grouping_feat, models_considered,
                                        feature_selection, max_signature_size,
                                        max_visualized_signature_count, None, None,
-                                       analysis_metric, url)
+                                       analysis_metric, optimizer, url)
         return str(
             JadbioClient.__parse_response__(ret, 'Analyze dataset')['analysisId'])
+    
+    def analyze_dataset_custom(self, dataset_id: int, form: AnalysisForm):
+        """
+        Initiate a custom ML analysis of a specified dataset.
+
+        :param int dataset_id: Identity of a dataset attached to a project to which the user has execute permissions.
+        :param AnalysisForm form: Analysis configuration. The form specifies the analysis title, target feature,
+            analysis type, dataset type, tuning effort, core count, cross-validation preferences, tuning parameters,
+            and plots.
+        :return: analysis_id
+        :rtype: str
+        :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
+
+        :Example:
+
+        >>> from jadbio.ml.analysis_form import classification
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
+        >>> form = classification('target_variable_name', 'NORMAL', 1)
+        >>> client.analyze_dataset_custom(6067, form)
+        '5219'
+        """
+
+        url = self.__base_url + 'dataset/customMLAnalyze'
+        ret = self.__analyze_custom_dataset__(dataset_id, form, url)
+        payload = JadbioClient.__parse_response__(ret, 'Analyze dataset custom')
+        ## Simplify.
+        analysis_id = payload.get('analysisId', payload.get('id'))
+        if analysis_id is None:
+            raise JadRequestResponseError(
+                {'message': 'Missing analysis id in response payload'},
+                'Analyze dataset custom'
+            )
+        return str(analysis_id)
 
     def analyze_dataset_custom_preprocessing(self,
                         dataset_id: str,
@@ -904,7 +943,8 @@ class JadbioClient(object):
                               max_signature_size=None,
                               max_visualized_signature_count=None, 
                               model_selection_protocol: dict = None,
-                              analysis_metric: str = None):
+                              analysis_metric: str = None,
+                              optimizer: str = None):
         """
         Check for possible errors and warnings, if an analysis is run on a specified dataset.
 
@@ -944,6 +984,9 @@ class JadbioClient(object):
             Classification metrics: "AUC","ACC","BACC","F1","F2","F0_5","MCC","MEAN_AP"
             Regression metrics: "R2","RAE","RSE","MAE","MSE","CORRELATION","SPEARMAN"
             Survival metrics : "CI"
+        :param str optimizer: Optimization strategy for the analysis. Supported values are "guided", "random",
+            and "hpo". If omitted or set to any other value, the parameter is not sent and the backend defaults to
+            "guided".
         :return: {errors?: [string], warnings?: [string], suggestions?: [string]}
         :rtype: dict
         :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
@@ -952,7 +995,7 @@ class JadbioClient(object):
 
         >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> client.analyze_dataset_check('2310', 'file_classification',
-        ...    {'classification': 'target'})
+        ...    {'classification': 'target'}, optimizer='guided')
         {
             "errors": ["SubscriptionDoesNotSupportExtensiveAnalysis",
                 "CoreCountLimitExceeded"],
@@ -965,7 +1008,7 @@ class JadbioClient(object):
                                        grouping_feat, models_considered,
                                        feature_selection, max_signature_size,
                                        max_visualized_signature_count, None, None,
-                                       analysis_metric, url)
+                                       analysis_metric, optimizer, url)
 
         return JadbioClient.__parse_response__(ret, 'Analyze dataset check')
 
@@ -983,7 +1026,8 @@ class JadbioClient(object):
                                      max_signature_size=None,
                                      max_visualized_signature_count=None, 
                                      model_selection_protocol: dict = None,
-                                     analysis_metric: str = None):
+                                     analysis_metric: str = None,
+                                     optimizer: str = None):
         """
         Initiate an analysis of a specified dataset, with additional models specified by the user.
         These models are added to be trained in the analysis on top of the models that JADBio selects using its AI system.
@@ -1049,6 +1093,9 @@ class JadbioClient(object):
             Classification metrics: "AUC","ACC","BACC","F1","F2","F0_5","MCC","MEAN_AP"
             Regression metrics: "R2","RAE","RSE","MAE","MSE","CORRELATION","SPEARMAN"
             Survival metrics : "CI"
+        :param str optimizer: Optimization strategy for the analysis. Supported values are "guided", "random",
+            and "hpo". If omitted or set to any other value, the parameter is not sent and the backend defaults to
+            "guided".
         :return: analysis_id
         :rtype: str
         :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
@@ -1058,7 +1105,7 @@ class JadbioClient(object):
         >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> knn = [{'name': 'KNeighborsClassifier', 'parameters': {'n_neighbors': 5}}]
         >>> client.analyze_dataset_extra_models('6067', 'file_classification',
-        ...    {'classification': 'variable1'}, extra_models=knn)
+        ...    {'classification': 'variable1'}, extra_models=knn, optimizer='guided')
         '5219'
         """
 
@@ -1068,7 +1115,7 @@ class JadbioClient(object):
                                        grouping_feat, models_considered,
                                        feature_selection, max_signature_size,
                                        max_visualized_signature_count,
-                                       extra_models, extra_feature_selectors, analysis_metric, url)
+                                       extra_models, extra_feature_selectors, analysis_metric, optimizer, url)
         return str(
             JadbioClient.__parse_response__(ret,
                                             'Analyze dataset')['analysisId'])
@@ -1088,7 +1135,8 @@ class JadbioClient(object):
             max_signature_size=None,
             max_visualized_signature_count=None, 
             model_selection_protocol: dict = None,
-            analysis_metric: str = None):
+            analysis_metric: str = None,
+            optimizer: str = None):
         """
         Check for possible errors and warnings, if an analysis with extra algorithms is run on a specified dataset.
 
@@ -1153,6 +1201,9 @@ class JadbioClient(object):
             Classification metrics: "AUC","ACC","BACC","F1","F2","F0_5","MCC","MEAN_AP"
             Regression metrics: "R2","RAE","RSE","MAE","MSE","CORRELATION","SPEARMAN"
             Survival metrics : "CI"
+        :param str optimizer: Optimization strategy for the analysis. Supported values are "guided", "random",
+            and "hpo". If omitted or set to any other value, the parameter is not sent and the backend defaults to
+            "guided".
         :return: {errors?: [string], warnings?: [string], suggestions?: [string]}
         :rtype: dict
         :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
@@ -1162,7 +1213,7 @@ class JadbioClient(object):
         >>> client = JadbioClient('juser@gmail.com', 'a password')
         >>> knn = [{'name': 'KNeighborsClassifier', 'parameters': {'n_neighbors': 5}}]
         >>> client.analyze_dataset_extra_models_check('2310', 'file_classification',
-        ...    {'classification': 'target'})
+        ...    {'classification': 'target'}, optimizer='guided')
         {
             "errors": ["SubscriptionDoesNotSupportExtensiveAnalysis",
                 "CoreCountLimitExceeded"],
@@ -1176,7 +1227,7 @@ class JadbioClient(object):
                                        grouping_feat, models_considered,
                                        feature_selection, max_signature_size,
                                        max_visualized_signature_count,
-                                       extra_models, extra_feature_selectors, analysis_metric, url)
+                                       extra_models, extra_feature_selectors, analysis_metric, optimizer, url)
         return JadbioClient.__parse_response__(ret, 'Analyze dataset check')
 
     def get_extra_models_description(self, outcome_type: str):
@@ -1354,6 +1405,151 @@ class JadbioClient(object):
         url = self.__base_url + 'analysis/{}/status'.format(analysis_id)
         ret = self.__session.get(url, headers=self.__token)
         return JadbioClient.__parse_response__(ret, 'Get analysis status')
+    
+    def download_analysis_model(self, analysis_id: str, model_id: str ="best", signature_id: str = "0", directory: str = "."):
+        """
+        Downloads the specified model of a finished analysis and returns the local file path.
+
+        :param str analysis_id: The id of the analysis. The user must have read permissions to the corresponding project.
+        :param str model_id: The id of the model. It can be retrieved from the result of get_analysis_result(analysis_id).
+        :param str signature_id: The id of the signature corresponding to the selected model.
+        :param str directory: The directory where the downloaded model file will be saved.
+        :return: The path of the downloaded model file.
+        :rtype: Path
+        :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
+
+        If the server provides a filename in the response headers, that filename is used.
+        Otherwise, the model is saved as ``model.json``.
+
+        :Example:
+
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
+        >>> client.download_analysis_model('5219')
+        PosixPath('model.json')
+        """
+        url = self.__base_url + 'analysis/downloadModel'
+        json_body = {
+            'aid': analysis_id,
+            'model': model_id,
+            'sid': signature_id
+        }
+        ret = self.__session.post(url, json=json_body, headers=self.__token)
+        if ret.status_code != 200:
+            raise JadRequestResponseError({"message": "Failed to download analysis model"}, ret.text)
+
+        return self.__save_downloaded_file__(ret, directory, "model.json")
+
+    def download_client(self, directory: str = "."):
+        """
+        Downloads the model client executable and returns the local file path.
+
+        :param str directory: The directory where the downloaded client file will be saved.
+        :return: The path of the downloaded client file.
+        :rtype: Path
+        :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
+
+        If the server provides a filename in the response headers, that filename is used.
+        Otherwise, the client is saved as ``jadbio-model-exe.jar``.
+
+        :Example:
+
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
+        >>> client.download_client(directory='.')
+        PosixPath('jadbio-model-exe.jar')
+        """
+        url = self.__base_url + 'modelClient/downloadClient'
+        ret = self.__session.post(url, data="{}", headers=self.__token)
+        if ret.status_code != 200:
+            raise JadRequestResponseError({"message": "Failed to download model client"}, ret.text)
+
+        self.__validate_downloaded_jar_response__(ret, 'Download model client')
+        return self.__save_downloaded_file__(ret, directory, "jadbio-model-exe.jar")
+    
+    def get_detailed_analysis_results(self, analysis_id: str):
+        """
+        Returns the detailed results of a finished analysis.
+
+        :param str analysis_id: The id of the analysis. The user must have read permissions to the corresponding project.
+        :return: {type: string, datasetInfo: object, targetData: object, trainMeta: object, metrics: object[],\
+            oosPredictions: object, bestModel: string, bestSignature: object[], optMetric: object,\
+            cacheStats: object?, executionTimeStats: object, configurationTime: object, splitIndices: object[],\
+            modelExport: object}
+        :rtype: dict
+        :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
+
+        The returned object contains metadata about the analysis, dataset and target, evaluation metrics,
+        out-of-sample predictions, the best model and signature, timing information, split indices and
+        model export data.
+
+        The ``cacheStats`` field may be ``None`` when cache information is not available.
+
+        :Example:
+
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
+        >>> client.get_detailed_analysis_results('5219')
+        {
+            'type': 'REGRESSION',
+            'datasetInfo': {...},
+            'targetData': {...},
+            'trainMeta': {...},
+            'metrics': [...],
+            'oosPredictions': {...},
+            'bestModel': 'Support Vector Regression Machines (SVR) ...',
+            'bestSignature': [...],
+            'optMetric': {...},
+            'cacheStats': None,
+            'executionTimeStats': {...},
+            'configurationTime': {...},
+            'splitIndices': [...],
+            'modelExport': {...}
+        }
+        """
+        url = self.__base_url + 'analysis/{}/downloadDetailedResults'.format(analysis_id)
+        ret = self.__session.get(url, headers=self.__token)
+        # return JadbioClient.__parse_response__(ret, 'Get analysis result')
+        return JadbioClient.__parse_response__(ret, 'Get Detailed analysis results')
+
+    def get_signatures(self, analysis_id: str):
+        """
+        Returns the signatures of a specific analysis.
+
+        :param str analysis_id: Identifies the analysis which must belong to a project to which the user must have
+            read access.
+        :return: {version: string, models: object, analysisType: string, target: string}
+        :rtype: dict
+        :raises RequestFailed, JadRequestResponseError: Exception in case sth goes wrong with a request.
+
+        The returned models object may contain entries such as ``best``, ``interpretable`` and ``univariate``.
+        Each model contains a description, a title and a list of signatures. Each signature is a list of features,
+        and each feature contains metadata such as its type, name, index, category and statistics.
+
+        :Example:
+
+        >>> client = JadbioClient('juser@gmail.com', 'a password')
+        >>> client.get_signatures('5219')
+        {
+            'version': '1.4.183',
+            'models': {
+                'best': {
+                    'model': 'Support Vector Regression Machines (SVR) ...',
+                    'title': 'Best Performing Model',
+                    'signatures': [[{
+                        'type': 'Numerical',
+                        'name': 'variable5',
+                        'index': 4,
+                        'category': 'FEATURE',
+                        'statistics': '{...}'
+                    }]]
+                }
+            },
+            'analysisType': 'REGRESSION',
+            'target': 'variable1'
+        }
+        """
+
+        url = self.__base_url + 'analysis/{}/signatures'.format(analysis_id)
+        ret = self.__session.get(url, headers=self.__token)
+        return JadbioClient.__parse_response__(ret, 'Get Signatures')
 
     def get_analysis_result(self, analysis_id: str):
         """
@@ -1888,10 +2084,20 @@ class JadbioClient(object):
         return JadbioClient.__parse_response__(ret, 'Image Upload Commit')
 
     # ---------------Private-Functions------------------------------------------#
+    def __analyze_custom_dataset__(self, dataset_id: int, form: AnalysisForm, url: str):
+        analyze_dataset_request = {
+            'pdaId': dataset_id,
+            'form': form.to_dict()
+        }
+        return self.__session.post(url, json=analyze_dataset_request, headers=self.__token)
+
+
+
     def __analyze_dataset__(self, name, outcome, model_selection_protocol, thoroughness, core_count,
                             grouping_feat, models_considered,
                             feature_selection, max_signature_size,
-                            max_visualized_signature_count, extra_models, extra_fs, analysis_metric: str, url):
+                            max_visualized_signature_count, extra_models, extra_fs, analysis_metric: str,
+                            optimizer: str, url):
 
         analyze_dataset_request = {
             'outcome': outcome,
@@ -1915,6 +2121,9 @@ class JadbioClient(object):
             analyze_dataset_request['extraFeatureSelectors'] = JadbioClient.__extra_algs_to_json__(extra_fs)
         if analysis_metric is not None:
             analyze_dataset_request['metric'] = analysis_metric
+        optimizer = JadbioClient.__normalize_optimizer__(optimizer)
+        if optimizer is not None:
+            analyze_dataset_request['optimizer'] = optimizer
 
         return self.__session.post(url, json=analyze_dataset_request, headers=self.__token)
 
@@ -1952,6 +2161,14 @@ class JadbioClient(object):
                                    headers=self.__token)
 
     @staticmethod
+    def __normalize_optimizer__(optimizer):
+        if optimizer is None:
+            return None
+        if isinstance(optimizer, str):
+            optimizer = optimizer.lower()
+        return optimizer if optimizer in {'guided', 'random', 'hpo'} else None
+
+    @staticmethod
     def __extra_algs_to_json__(extra_models):
         extra_models_json = list()
         for model in extra_models:
@@ -1963,6 +2180,26 @@ class JadbioClient(object):
                 'parameters': parameters
             })
         return extra_models_json
+
+    @staticmethod
+    def __save_downloaded_file__(resp, directory: str, default_filename: str):
+        filename = default_filename
+        content_disposition = resp.headers.get("Content-Disposition", "")
+        if "filename=" in content_disposition:
+            filename = content_disposition.split("filename=")[-1].strip().strip('"')
+
+        path = Path(directory) / filename
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(resp.content)
+        return path
+
+    @staticmethod
+    def __validate_downloaded_jar_response__(resp, where: str):
+        content = resp.content or b""
+        if not content:
+            raise RequestFailed(f"{where}: empty response body")
+        if not content.startswith(b"PK"):
+            raise RequestFailed(f"{where}: response is not a JAR file")
 
     @staticmethod
     def __parse_response__(resp, where):
