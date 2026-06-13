@@ -801,7 +801,7 @@ class JadbioClient(object):
             When not present, a default value of 5 is used.
         :param string analysis_metric: The metric that the pipeline will optimize over. When present it must be one of the specified metrics.
             Classification metrics: "AUC","ACC","BACC","F1","F2","F0_5","MCC","MEAN_AP"
-            Regression metrics: "R2","RAE","RSE","MAE","MSE","CORRELATION","SPEARMAN"
+            Regression metrics: "R2","RAE","RSE","MAE","MSE","CORRELATION","SPEARMAN","CLASSIC_R2"
             Survival metrics : "CI"
         :param str optimizer: Optimization strategy for the analysis. Supported values are "guided", "random",
             and "hpo". If omitted or set to any other value, the parameter is not sent and the backend defaults to
@@ -982,7 +982,7 @@ class JadbioClient(object):
             When not present, a default value of 5 is used.
         :param string analysis_metric: The metric that the pipeline will optimize over. When present it must be one of the specified metrics.
             Classification metrics: "AUC","ACC","BACC","F1","F2","F0_5","MCC","MEAN_AP"
-            Regression metrics: "R2","RAE","RSE","MAE","MSE","CORRELATION","SPEARMAN"
+            Regression metrics: "R2","RAE","RSE","MAE","MSE","CORRELATION","SPEARMAN","CLASSIC_R2"
             Survival metrics : "CI"
         :param str optimizer: Optimization strategy for the analysis. Supported values are "guided", "random",
             and "hpo". If omitted or set to any other value, the parameter is not sent and the backend defaults to
@@ -1091,7 +1091,7 @@ class JadbioClient(object):
             When not present, a default value of 5 is used.
         :param string analysis_metric: The metric that the pipeline will optimize over. When present it must be one of the specified metrics.
             Classification metrics: "AUC","ACC","BACC","F1","F2","F0_5","MCC","MEAN_AP"
-            Regression metrics: "R2","RAE","RSE","MAE","MSE","CORRELATION","SPEARMAN"
+            Regression metrics: "R2","RAE","RSE","MAE","MSE","CORRELATION","SPEARMAN","CLASSIC_R2"
             Survival metrics : "CI"
         :param str optimizer: Optimization strategy for the analysis. Supported values are "guided", "random",
             and "hpo". If omitted or set to any other value, the parameter is not sent and the backend defaults to
@@ -1199,7 +1199,7 @@ class JadbioClient(object):
             When not present, a default value of 5 is used.
         :param string analysis_metric: The metric that the pipeline will optimize over. When present it must be one of the specified metrics.
             Classification metrics: "AUC","ACC","BACC","F1","F2","F0_5","MCC","MEAN_AP"
-            Regression metrics: "R2","RAE","RSE","MAE","MSE","CORRELATION","SPEARMAN"
+            Regression metrics: "R2","RAE","RSE","MAE","MSE","CORRELATION","SPEARMAN","CLASSIC_R2"
             Survival metrics : "CI"
         :param str optimizer: Optimization strategy for the analysis. Supported values are "guided", "random",
             and "hpo". If omitted or set to any other value, the parameter is not sent and the backend defaults to
